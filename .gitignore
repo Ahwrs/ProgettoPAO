@@ -1,0 +1,26 @@
+# Build
+build/
+
+# Qt SDK locale (NON versionare)
+QT/
+
+# Qt runtime generato
+*.dll
+platforms/
+imageformats/
+styles/
+iconengines/
+translations/
+
+# VSCode locali
+.vscode/tasks.json
+.vscode/*.code-workspace
+
+# CMake cache
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Executable
+*.exe
