@@ -13,7 +13,7 @@ iconengines/
 translations/
 
 # VSCode locali
-.vscode
+.vscode/
 
 # CMake cache
 CMakeCache.txt
