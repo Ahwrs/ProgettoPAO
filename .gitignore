@@ -13,8 +13,7 @@ iconengines/
 translations/
 
 # VSCode locali
-.vscode/tasks.json
-.vscode/*.code-workspace
+.vscode
 
 # CMake cache
 CMakeCache.txt
