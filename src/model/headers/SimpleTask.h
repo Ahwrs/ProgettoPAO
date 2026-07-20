@@ -15,6 +15,7 @@ public:
     ~SimpleTask() = default;
 
     QString getInfo() const override;
+    ActivityCategory getCategory() const override;
     bool isCompleted() const override;
     void setCompleted();
 };

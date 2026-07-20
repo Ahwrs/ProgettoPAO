@@ -12,3 +12,8 @@ QString Event::getInfo() const {
     return getDescription() + "\nData: " + date.toString("dd/MM/yyyy") +
            "\nOra: " + startTime.toString("HH:mm") + " - " + endTime.toString("HH:mm");
 }
+
+QDate Event::getDate() const { return date; }
+QTime Event::getStartTime() const { return startTime; }
+QTime Event::getEndTime() const { return endTime; }
+Activity::ActivityCategory Event::getCategory() const { return ActivityCategory::EventType; }

@@ -59,3 +59,5 @@ QString CompositeTask::getInfo() const {
     }
     return result;
 }
+
+Activity::ActivityCategory CompositeTask::getCategory() const { return ActivityCategory::CompositeTaskType; }

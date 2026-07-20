@@ -19,6 +19,7 @@ public:
 
     QString getInfo() const override;
     QString getLink() const;
+    ActivityCategory getCategory() const override;
 };
 
 

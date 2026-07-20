@@ -12,16 +12,32 @@ endif()
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 add_executable(Calendar
+    
     main.cpp
+
+    # Model
     src/model/classes/Activity.cpp
     src/model/classes/Task.cpp
     src/model/classes/Event.cpp
     src/model/classes/SimpleTask.cpp
     src/model/classes/Appointment.cpp
     src/model/classes/CompositeTask.cpp
+
+    # Controller
+    src/controller/classes/ActivityController.cpp
+
+    # View
+    src/view/classes/MainWindow.cpp
+    src/view/classes/ActivityListModel.cpp
+    src/view/headers/ActivityListModel.h
 )
 
-target_include_directories(Calendar PRIVATE ${CMAKE_SOURCE_DIR}/src/model/headers)
+target_include_directories(Calendar PRIVATE
+    ${CMAKE_SOURCE_DIR}/src/model/headers
+    ${CMAKE_SOURCE_DIR}/src/model/filters/headers
+    ${CMAKE_SOURCE_DIR}/src/controller/headers
+    ${CMAKE_SOURCE_DIR}/src/view/headers
+)
 target_link_libraries(Calendar PRIVATE Qt6::Widgets)
 
 set_target_properties(Calendar PROPERTIES
