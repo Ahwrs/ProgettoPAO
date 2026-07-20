@@ -5,7 +5,7 @@ Appointment::Appointment(const QString& title, const QString& description,
                 const QString& link, bool isOnline) :
 
                 Event(title, description, date, start, end),
-                link(link), isOnline(isOnline) {}
+                isOnline(isOnline), link(link) {}
 
 QString Appointment::getLink() const { return link; }
 QString Appointment::getInfo() const {

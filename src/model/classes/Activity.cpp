@@ -1,10 +1,13 @@
 #include "../headers/Activity.h"
-#include <QRandomGenerator>
 
-    
+Activity::Activity(const QString& t, const QString& d) :
+    ID(QUuid::createUuid()), title(t), description(d) {}
 
-Activity::Activity(const QString& t, const QString& d) : ID(QRandomGenerator::global()->bounded(0, INT_MAX)), title(t), description(d) {}
 Activity::~Activity() {}
 
+QUuid Activity::getID() const { return ID; }
 QString Activity::getTitle() const { return title; }
 QString Activity::getDescription() const { return description; }
+
+void Activity::setTitle(const QString& t) { title = t; }
+void Activity::setDescription(const QString& d) { description = d; }
