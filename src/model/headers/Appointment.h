@@ -18,6 +18,7 @@ public:
     virtual ~Appointment() = default;
 
     QString getInfo() const override;
+    ActivityCategory getCategory() const override;
     QString getLink() const;
 };
 

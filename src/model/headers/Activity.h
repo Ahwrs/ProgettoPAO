@@ -14,12 +14,13 @@ private:
 
 public:
 
-   
+    enum ActivityCategory{Event, SimpleTask, CompositeTask, Appointment};
     
     Activity(const QString& t, const QString& d);
     virtual ~Activity();
 
     virtual QString getInfo() const = 0; 
+    virtual ActivityCategory getCategory() const = 0;
 
     QUuid getID() const;
     QString getTitle() const;

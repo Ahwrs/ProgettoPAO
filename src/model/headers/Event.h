@@ -16,6 +16,7 @@ public:
     virtual ~Event() = default;
 
     QString getInfo() const override;
+    ActivityCategory getCategory() const override;
 
     QDate getDate() const;
     QTime getStartTime() const;

@@ -22,6 +22,7 @@ public:
 
     bool isCompleted() const override;
     QString getInfo() const override;
+    ActivityCategory getCategory() const override;
 };
 
 #endif
