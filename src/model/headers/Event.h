@@ -20,7 +20,6 @@ public:
     QDate getDate() const;
     QTime getStartTime() const;
     QTime getEndTime() const;
-    ActivityCategory getCategory() const override;
 };
 
 #endif

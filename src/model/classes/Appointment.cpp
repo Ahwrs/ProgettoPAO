@@ -12,5 +12,3 @@ QString Appointment::getInfo() const {
 
     return Event::getInfo() + (isOnline ? "\nMeeting: " : "\nLocation: ") + link;
 }
-
-Activity::ActivityCategory Appointment::getCategory() const { return ActivityCategory::AppointmentType; }

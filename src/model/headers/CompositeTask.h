@@ -15,7 +15,6 @@ public:
     void addTask(Task* task);          
     void removeTask(int index);
     double getCompletionPercentage() const;
-    ActivityCategory getCategory() const override;
 
     bool isCompleted() const override;
     QString getInfo() const override;

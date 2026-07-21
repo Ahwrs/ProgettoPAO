@@ -11,4 +11,3 @@ QString SimpleTask::getInfo() const {
 
 bool SimpleTask::isCompleted() const { return TaskCompleted; }
 void SimpleTask::setCompleted() { TaskCompleted = true; }
-Activity::ActivityCategory SimpleTask::getCategory() const { return ActivityCategory::SimpleTaskType; }

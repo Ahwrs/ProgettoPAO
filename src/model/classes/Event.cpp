@@ -16,4 +16,3 @@ QString Event::getInfo() const {
 QDate Event::getDate() const { return date; }
 QTime Event::getStartTime() const { return startTime; }
 QTime Event::getEndTime() const { return endTime; }
-Activity::ActivityCategory Event::getCategory() const { return ActivityCategory::EventType; }
