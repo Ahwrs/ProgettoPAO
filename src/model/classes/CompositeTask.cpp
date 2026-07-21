@@ -1,25 +1,18 @@
-#include "../headers/CompositeTask.h"
+#include "CompositeTask.h"
+
+#include <utility>
 
 CompositeTask::CompositeTask(const QString& title) : Task(title, QString()) {}
-CompositeTask::~CompositeTask() {
 
-    for (Task* t : SubTasks)
-        
-        delete t;
-}
-
-void CompositeTask::addTask(Task* task) {
+void CompositeTask::addTask(std::unique_ptr<Task> task) {
     
-    if (task)
-        
-        SubTasks.push_back(task);
+    if (task) SubTasks.push_back(std::move(task));
 }
 
 void CompositeTask::removeTask(int index) {
 
     if (index >= 0 && index < static_cast<int>(SubTasks.size())) {
 
-        delete SubTasks[index];
         SubTasks.erase(SubTasks.begin() + index);
     }
 }
@@ -28,7 +21,7 @@ double CompositeTask::getCompletionPercentage() const {
     
     double completedCount = 0.0;
     
-    for (const Task* t : SubTasks) {
+    for (const std::unique_ptr<Task>& t : SubTasks) {
         
         if (t->isCompleted()) completedCount++;
     }
@@ -49,7 +42,7 @@ QString CompositeTask::getInfo() const {
     
         result += "Sub-Task:\n";
     
-        for (const Task* t : SubTasks) {
+        for (const std::unique_ptr<Task>& t : SubTasks) {
             
             
             QString childInfo = t->getInfo();

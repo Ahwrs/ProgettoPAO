@@ -1,11 +1,7 @@
-#include "../headers/Event.h"
-#include <exception>
+#include "Event.h"
 
 Event::Event(const QString& title, const QString& description,
-          const QDate& date, const QTime& start, const QTime& end) :
-
-          Activity(title, description),
-          date(date), startTime(start), endTime(end) {}
+          const QDate& date, const QTime& start, const QTime& end) : Activity(title, description), date(date), startTime(start), endTime(end) {}
 
 QString Event::getInfo() const {
 

@@ -1,4 +1,4 @@
-#include "../headers/SimpleTask.h"
+#include "SimpleTask.h"
 
 
 SimpleTask::SimpleTask(const QString& t, const QString& d) : Task(t, d), TaskCompleted(false) {}

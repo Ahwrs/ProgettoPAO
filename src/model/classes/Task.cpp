@@ -1,4 +1,4 @@
-#include "../headers/Task.h"
+#include "Task.h"
 
 Task::Task(const QString& t, const QString& d) : Activity(t,d) {}
 Task::~Task() = default;

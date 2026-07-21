@@ -1,4 +1,4 @@
-#include "../headers/Activity.h"
+#include "Activity.h"
 
 Activity::Activity(const QString& t, const QString& d) :
     ID(QUuid::createUuid()), title(t), description(d) {}

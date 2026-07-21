@@ -4,8 +4,6 @@
 #include <QString>
 #include <QUuid>
 
-
-
 class Activity{
 
 private:

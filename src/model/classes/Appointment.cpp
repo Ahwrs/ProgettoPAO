@@ -1,4 +1,4 @@
-#include "../headers/Appointment.h"
+#include "Appointment.h"
 
 Appointment::Appointment(const QString& title, const QString& description,
                 const QDate& date, const QTime& start, const QTime& end,
