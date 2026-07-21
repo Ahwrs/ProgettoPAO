@@ -23,20 +23,10 @@ add_executable(Calendar
     src/model/classes/Appointment.cpp
     src/model/classes/CompositeTask.cpp
 
-    # Controller
-    src/controller/classes/ActivityController.cpp
-
-    # View
-    src/view/classes/MainWindow.cpp
-    src/view/classes/ActivityListModel.cpp
-    src/view/headers/ActivityListModel.h
 )
 
 target_include_directories(Calendar PRIVATE
     ${CMAKE_SOURCE_DIR}/src/model/headers
-    ${CMAKE_SOURCE_DIR}/src/model/filters/headers
-    ${CMAKE_SOURCE_DIR}/src/controller/headers
-    ${CMAKE_SOURCE_DIR}/src/view/headers
 )
 target_link_libraries(Calendar PRIVATE Qt6::Widgets)
 
