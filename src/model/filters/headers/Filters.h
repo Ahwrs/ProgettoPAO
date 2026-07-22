@@ -94,20 +94,20 @@ public:
 
 private:
 
-    std::vector<ActivityFilter*> filters;
+    std::vector<std::unique_ptr<ActivityFilter>> filters;
     LogicMode mode;
 
 public:
     
     CompositeFilter(LogicMode mode) : mode(mode) {}
-    ~CompositeFilter() override {
-        for (ActivityFilter* f : filters)
-            delete f;
-    }
+    CompositeFilter(const CompositeFilter& cs) = delete;
+    ~CompositeFilter() override = default;
 
-    void addFilter(ActivityFilter* filter) {
+    CompositeFilter& operator=(const CompositeFilter&) = delete;
+
+    void addFilter(std::unique_ptr<ActivityFilter> filter) { // Ricordarsi di usare std::make_unique<> quando si invoca addFilter su un puntatore non unique.
         if (filter)
-            filters.push_back(filter);
+            filters.push_back(std::move(filter));
     }
 
     bool matches(const Activity* activity) const override {
@@ -115,7 +115,7 @@ public:
         if (filters.empty()) return true;   // nessun filtro attivo: tutto passa
         if (mode == LogicMode::And) {
 
-            for (const ActivityFilter* f : filters) {
+            for (const auto& f : filters) {
                 if (!f->matches(activity))
                     return false;
             }
@@ -123,7 +123,7 @@ public:
 
         } else { // LogicMode::Or
 
-            for (const ActivityFilter* f : filters) {
+            for (const auto& f : filters) {
                 if (f->matches(activity))
                     return true;
             }

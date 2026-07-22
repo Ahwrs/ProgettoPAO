@@ -2,7 +2,8 @@
 #define EVENT_H
 
 #include "Activity.h"
-#include <QDateTime>
+#include <QDate>
+#include <QTime>
 
 class Event : public Activity {
 private:
@@ -16,11 +17,16 @@ public:
     virtual ~Event() = default;
 
     QString getInfo() const override;
+    void update(const ActivityData& newData) override;
     ActivityCategory getCategory() const override;
 
     QDate getDate() const;
     QTime getStartTime() const;
     QTime getEndTime() const;
+
+    void setDate(const QDate& d);
+    void setStartTime(const QTime& s);
+    void setEndTime(const QTime& e);
 };
 
 #endif

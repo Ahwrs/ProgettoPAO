@@ -18,8 +18,12 @@ public:
     virtual ~Appointment() = default;
 
     QString getInfo() const override;
+    void update(const ActivityData& newData) override;
     ActivityCategory getCategory() const override;
     QString getLink() const;
+    bool getIsOnline() const;
+    void setLink(const QString& l);
+    void setIsOnline(bool isO);
 };
 
 

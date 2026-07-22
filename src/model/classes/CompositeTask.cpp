@@ -1,10 +1,11 @@
 #include "CompositeTask.h"
+#include "ActivityData.h"
 
 #include <utility>
 
 CompositeTask::CompositeTask(const QString& title) : Task(title, QString()) {}
 
-void CompositeTask::addTask(std::unique_ptr<Task> task) {
+void CompositeTask::addTask(std::unique_ptr<SimpleTask> task) {
     
     if (task) SubTasks.push_back(std::move(task));
 }
@@ -21,7 +22,7 @@ double CompositeTask::getCompletionPercentage() const {
     
     double completedCount = 0.0;
     
-    for (const std::unique_ptr<Task>& t : SubTasks) {
+    for (const std::unique_ptr<SimpleTask>& t : SubTasks) {
         
         if (t->isCompleted()) completedCount++;
     }
@@ -42,7 +43,7 @@ QString CompositeTask::getInfo() const {
     
         result += "Sub-Task:\n";
     
-        for (const std::unique_ptr<Task>& t : SubTasks) {
+        for (const std::unique_ptr<SimpleTask>& t : SubTasks) {
             
             
             QString childInfo = t->getInfo();
@@ -53,4 +54,16 @@ QString CompositeTask::getInfo() const {
     return result;
 }
 
-Activity::ActivityCategory CompositeTask::getCategory() const {return Activity::CompositeTask;}
+const std::vector<std::unique_ptr<SimpleTask>>& CompositeTask::getSubTasks() const { return SubTasks; }
+
+SimpleTask* CompositeTask::getSubTask(int index) const {
+
+    return (index >= 0 && index < static_cast<int>(SubTasks.size())) ? SubTasks[index].get() : nullptr;
+}
+
+void CompositeTask::update(const ActivityData& newData) {
+    
+    setTitle(newData.title);
+}
+
+Activity::ActivityCategory CompositeTask::getCategory() const {return Activity::ActivityCategory::CompositeTask;}

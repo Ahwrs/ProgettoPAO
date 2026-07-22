@@ -4,6 +4,8 @@
 #include <QString>
 #include <QUuid>
 
+struct ActivityData; // Forward Declaration
+
 class Activity{
 
 private:
@@ -14,13 +16,15 @@ private:
 
 public:
 
-    enum ActivityCategory{Event, SimpleTask, CompositeTask, Appointment};
+    enum class ActivityCategory{Event, SimpleTask, CompositeTask, Appointment};
     
     Activity(const QString& t, const QString& d);
     virtual ~Activity();
 
     virtual QString getInfo() const = 0; 
     virtual ActivityCategory getCategory() const = 0;
+
+    virtual void update(const ActivityData& newData);
 
     QUuid getID() const;
     QString getTitle() const;
