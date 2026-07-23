@@ -28,7 +28,7 @@ add_executable(Calendar
 
 target_include_directories(Calendar PRIVATE
     ${CMAKE_SOURCE_DIR}/src/model/headers
-    ${CMAKE_SOURCE_DIR}/src/model/filters/headers
+    ${CMAKE_SOURCE_DIR}/src/model/ActivityFilters/headers
     ${CMAKE_SOURCE_DIR}/src/model/ActivityManager/headers
 )
 target_link_libraries(Calendar PRIVATE Qt6::Widgets)

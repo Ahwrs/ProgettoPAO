@@ -11,11 +11,15 @@ private:
 
 public:
 
-    SimpleTask(const QString& t, const QString& d);
+    SimpleTask(const QString& t, const QString& d, bool Tc = false);
     ~SimpleTask() = default;
 
-    QString getInfo() const override;
-    ActivityCategory getCategory() const override;
+    virtual QString getInfo() const override;
+    virtual ActivityCategory getCategory() const override;
+
+    virtual QJsonObject toJSON() const override;
+    
+
     bool isCompleted() const override;
     void setCompleted();
 };

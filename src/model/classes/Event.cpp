@@ -1,5 +1,5 @@
 #include "Event.h"
-#include "ActivityData.h"
+#include "ActivityUtilities.h"
 
 Event::Event(const QString& title, const QString& description,
           const QDate& date, const QTime& start, const QTime& end) : Activity(title, description), date(date), startTime(start), endTime(end) {}
@@ -24,6 +24,17 @@ void Event::update(const ActivityData& newData) {
     setDate(newData.date);
     setStartTime(newData.start);
     setEndTime(newData.end);
+}
+
+QJsonObject Event::toJSON() const {
+
+    QJsonObject obj = Activity::toJSON();
+    obj["Date"] = getDate().toString(Qt::ISODate);
+    obj["StartTime"] = getStartTime().toString(Qt::ISODate);
+    obj["EndTime"] = getEndTime().toString(Qt::ISODate);
+    obj["CategoryType"] = CatToString(getCategory());
+
+    return obj;
 }
 
 Activity::ActivityCategory Event::getCategory() const {return Activity::ActivityCategory::Event;}

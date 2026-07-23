@@ -1,7 +1,8 @@
 #include "CompositeTask.h"
-#include "ActivityData.h"
+#include "ActivityUtilities.h"
 
 #include <utility>
+#include <QJsonArray>
 
 CompositeTask::CompositeTask(const QString& title) : Task(title, QString()) {}
 
@@ -64,6 +65,22 @@ SimpleTask* CompositeTask::getSubTask(int index) const {
 void CompositeTask::update(const ActivityData& newData) {
     
     setTitle(newData.title);
+}
+
+QJsonObject CompositeTask::toJSON() const {
+
+    QJsonObject obj = Activity::toJSON();
+
+    QJsonArray arr;
+    for(const std::unique_ptr<SimpleTask>& s : SubTasks){
+
+        arr.append(s->toJSON());
+    }
+
+    obj["SubTasks"] = arr;
+    obj["CategoryType"] = CatToString(getCategory());
+
+    return obj;
 }
 
 Activity::ActivityCategory CompositeTask::getCategory() const {return Activity::ActivityCategory::CompositeTask;}

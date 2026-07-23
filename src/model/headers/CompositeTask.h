@@ -15,21 +15,20 @@ public:
     CompositeTask(const QString& title);
     ~CompositeTask() override = default;
 
-    CompositeTask(const CompositeTask&) = delete;
-    CompositeTask& operator=(const CompositeTask&) = delete;
-
     void addTask(std::unique_ptr<SimpleTask> task);
     void removeTask(int index);
 
     const std::vector<std::unique_ptr<SimpleTask>>& getSubTasks() const;
     SimpleTask* getSubTask(int index) const;
 
-    void update(const ActivityData& newData) override;
+    virtual void update(const ActivityData& newData) override;
+    virtual ActivityCategory getCategory() const override;
+    virtual QJsonObject toJSON() const override;
+    
 
     double getCompletionPercentage() const;
     bool isCompleted() const override;
-    QString getInfo() const override;
-    ActivityCategory getCategory() const override;
+    virtual QString getInfo() const override;
 };
 
 #endif

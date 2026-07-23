@@ -17,9 +17,12 @@ public:
                 const QString& link, bool isOnline);
     virtual ~Appointment() = default;
 
-    QString getInfo() const override;
-    void update(const ActivityData& newData) override;
-    ActivityCategory getCategory() const override;
+    virtual QString getInfo() const override;
+    
+    virtual void update(const ActivityData& newData) override;
+    virtual ActivityCategory getCategory() const override;
+    virtual QJsonObject toJSON() const override;
+
     QString getLink() const;
     bool getIsOnline() const;
     void setLink(const QString& l);

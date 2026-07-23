@@ -3,7 +3,7 @@
 
 #include "Activity.h"
 #include "ActivityFilter.h"
-#include "ActivityData.h"
+#include "ActivityUtilities.h"
 #include <vector>
 #include <memory>
 #include <algorithm>
@@ -24,12 +24,13 @@ public:
     std::vector<Activity*> search(const ActivityFilter& filters) const;
     void edit(const QUuid& idx, const ActivityData& newData);
 
-    void save(const QString& path) const;
-    void load(const QString& path);
+    bool save(const QString& path) const;
+    bool load(const QString& path);
 
 signals:
 
     void activitiesChanged();
+    void IOError(const std::string& msg);
 };
 
 #endif

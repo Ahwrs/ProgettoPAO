@@ -1,5 +1,5 @@
 #include "Appointment.h"
-#include "ActivityData.h"
+#include "ActivityUtilities.h"
 
 Appointment::Appointment(const QString& title, const QString& description,
                 const QDate& date, const QTime& start, const QTime& end,
@@ -22,6 +22,16 @@ void Appointment::update(const ActivityData& newData) {
     Event::update(newData);
     setLink(newData.link);
     setIsOnline(newData.isOnline);
+}
+
+QJsonObject Appointment::toJSON() const {
+
+    QJsonObject obj = Event::toJSON();
+    obj["Link"] = getLink();
+    obj["Online"] = getIsOnline();
+    obj["CategoryType"] = CatToString(getCategory());
+
+    return obj;
 }
 
 Activity::ActivityCategory Appointment::getCategory() const {return Activity::ActivityCategory::Appointment;}

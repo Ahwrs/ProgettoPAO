@@ -3,6 +3,7 @@
 
 #include <QString>
 #include <QUuid>
+#include <QJsonObject>
 
 struct ActivityData; // Forward Declaration
 
@@ -17,14 +18,17 @@ private:
 public:
 
     enum class ActivityCategory{Event, SimpleTask, CompositeTask, Appointment};
-    
+
     Activity(const QString& t, const QString& d);
     virtual ~Activity();
+    Activity(const Activity&) = delete;
+    Activity& operator=(const Activity&) = delete;
 
     virtual QString getInfo() const = 0; 
     virtual ActivityCategory getCategory() const = 0;
 
     virtual void update(const ActivityData& newData);
+    virtual QJsonObject toJSON() const;
 
     QUuid getID() const;
     QString getTitle() const;
