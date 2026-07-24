@@ -23,13 +23,14 @@ add_executable(Calendar
     src/model/classes/Appointment.cpp
     src/model/classes/CompositeTask.cpp
     src/model/ActivityManager/classes/ActivityManager.cpp
+    src/model/ActivityManager/headers/ActivityManager.h
 
 )
 
 target_include_directories(Calendar PRIVATE
-    ${CMAKE_SOURCE_DIR}/src/model/headers
-    ${CMAKE_SOURCE_DIR}/src/model/ActivityFilters/headers
-    ${CMAKE_SOURCE_DIR}/src/model/ActivityManager/headers
+    ${CMAKE_SOURCE_DIR}/src/model/headers/
+    ${CMAKE_SOURCE_DIR}/src/model/ActivityFilters/headers/
+    ${CMAKE_SOURCE_DIR}/src/model/ActivityManager/headers/
 )
 target_link_libraries(Calendar PRIVATE Qt6::Widgets)
 

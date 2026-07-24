@@ -30,7 +30,7 @@ public:
 signals:
 
     void activitiesChanged();
-    void IOError(const std::string& msg);
+    void IOError(const QString& msg);
 };
 
 #endif

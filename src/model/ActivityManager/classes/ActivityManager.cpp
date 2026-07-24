@@ -111,17 +111,11 @@ bool ActivityManager::load(const QString& path){
 
         file.close();
     
-    }catch(std::invalid_argument& e){
+    }catch(const std::invalid_argument& e){
 
-        emit IOError(e.what()); 
+        emit ActivityManager::IOError(e.what()); 
         return false;
     }
 
     return true;
-}
-
-//Chiedere se è meglio usare std::string oppure QString nella firma
-void ActivityManager::IOError(const std::string& msg){
-
-    std::cout << msg;
 }
