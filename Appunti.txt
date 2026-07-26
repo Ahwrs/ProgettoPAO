@@ -1,0 +1,39 @@
+A: 
+SimpleTask non fa l'override di update() — modificando un SimpleTask 
+tramite ActivityManager::edit(), il campo isCompleted di ActivityData 
+viene silenziosamente ignorato.
+
+Si perché si da per scontato che un'attività completata venga eliminata.
+Si aggiunge quindi un QMessage pre checking nel quale si notifica l'immediata eliminazione
+se si completa la task.
+
+B. SimpleTask::setCompleted() non ha parametri — non c'è modo di "de-completare" 
+un task una volta segnato completo; probabilmente vi servirà setCompleted(bool).
+
+No non serve, proprio perché come detto prima.
+Una volta completata l'attività la si elimina poco dopo o subito.
+
+C.
+Bug ancora presente: load() cancella i dati prima di sapere se il caricamento riuscirà
+
+Buona notizia: l'eccezione ora è gestita. Cattiva notizia: l'ordine delle operazioni non è cambiato:
+
+cpp
+bool ActivityManager::load(const QString& path){
+    try
+    {
+        acty.clear();                              // <- cancella SUBITO i dati attuali
+        QFile file(path);
+        if(!file.open(QIODevice::ReadOnly)) return false;   // se fallisce, i dati sono già persi
+        ...
+
+Se l'utente sceglie un percorso sbagliato, annulla una dialog, o il file è corrotto (JSON non-array, categoria sconosciuta), la funzione ritorna false ma le attività già in memoria sono già state cancellate. Questo è un bug reale di perdita dati, non solo teorico.
+
+La soluzione più robusta è non toccare acty finché non siete sicuri che l'intero parsing sia andato a buon fine — per esempio popolando un vettore temporaneo e sostituendolo ad acty solo alla fine:
+
+cpp
+std::vector<std::unique_ptr<Activity>> tempActy; // parsing su una copia locale
+// ... popolate tempActy invece di usare create() direttamente su acty ...
+acty = std::move(tempActy); // swap solo se tutto è andato bene
+
+Questo richiede di adattare leggermente create() (che oggi scrive direttamente su acty), ma è l'unico modo per garantire che un fallimento a metà parsing non lasci il manager in uno stato inconsistente (né i vecchi dati né i nuovi completi).

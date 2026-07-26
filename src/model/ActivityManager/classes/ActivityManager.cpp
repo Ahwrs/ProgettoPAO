@@ -88,12 +88,15 @@ bool ActivityManager::load(const QString& path){
 
     try
     {
-        acty.clear();
+        acty.clear(); // Modificare il load() tenere conto di Appunti.txt
         QFile file(path);
         if(!file.open(QIODevice::ReadOnly)) return false;
 
         QByteArray bytes = file.readAll();
-        QJsonArray arr = QJsonDocument::fromJson(bytes).array();
+        QJsonDocument doc = QJsonDocument::fromJson(bytes);
+
+        if(!doc.isArray()){ emit IOError("Formato JSON non valido"); return false;}
+        QJsonArray arr = doc.array();
 
         for(const QJsonValue& obj : arr){
 
@@ -113,7 +116,7 @@ bool ActivityManager::load(const QString& path){
     
     }catch(const std::invalid_argument& e){
 
-        emit ActivityManager::IOError(e.what()); 
+        emit IOError(e.what()); 
         return false;
     }
 

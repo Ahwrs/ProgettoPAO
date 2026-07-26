@@ -23,3 +23,7 @@ Makefile
 
 # Executable
 *.exe
+
+.gitignore
+ActivityManager.h
+ActivityManager.cpp

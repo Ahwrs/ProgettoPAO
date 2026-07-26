@@ -1,12 +1,13 @@
+#include "ActivityManager.h"
+#include "MainWindow.h"
 #include <QApplication>
-#include <QPushButton>
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
-    QPushButton button("Hello Qt!");
-    button.resize(300, 200);
-    button.show();
+    ActivityManager manager;         // vive per tutta la durata del programma
+    MainWindow window(&manager);     // iniettato, MainWindow non lo possiede
 
+    window.show();
     return app.exec();
 }
