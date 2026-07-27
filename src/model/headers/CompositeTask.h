@@ -16,16 +16,16 @@ public:
     ~CompositeTask() override = default;
 
     void addTask(std::unique_ptr<SimpleTask> task);
-    void removeTask(int index);
+    bool removeTask(const QUuid& idx);
 
     const std::vector<std::unique_ptr<SimpleTask>>& getSubTasks() const;
-    SimpleTask* getSubTask(int index) const;
+    SimpleTask* getSubTask(const QUuid& idx) const;
 
     virtual void update(const ActivityData& newData) override;
     virtual ActivityCategory getCategory() const override;
     virtual QJsonObject toJSON() const override;
     
-
+    bool completeByID(const QUuid& idx);
     double getCompletionPercentage() const;
     bool isCompleted() const override;
     virtual QString getInfo() const override;

@@ -17,12 +17,15 @@ class ActivityManager : public QObject{
 private:
     std::vector<std::unique_ptr<Activity>> acty;
 
+    std::unique_ptr<Activity> build(const ActivityData& data);
+
 public:
 
     Activity* create(const ActivityData& data);
     void del(const QUuid& idx);
     std::vector<Activity*> search(const ActivityFilter& filters) const;
     void edit(const QUuid& idx, const ActivityData& newData);
+    void completeSubTask(const QUuid& idx);
 
     bool save(const QString& path) const;
     bool load(const QString& path);

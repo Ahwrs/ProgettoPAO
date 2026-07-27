@@ -11,12 +11,26 @@ void CompositeTask::addTask(std::unique_ptr<SimpleTask> task) {
     if (task) SubTasks.push_back(std::move(task));
 }
 
-void CompositeTask::removeTask(int index) {
+bool CompositeTask::removeTask(const QUuid& idx) {
 
-    if (index >= 0 && index < static_cast<int>(SubTasks.size())) {
+    auto it = std::find_if(SubTasks.begin(), SubTasks.end(),
+        [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx; });
+    
+    if (it == SubTasks.end()) return false;
+    SubTasks.erase(it);
+    
+    return true;
+}
 
-        SubTasks.erase(SubTasks.begin() + index);
-    }
+bool CompositeTask::completeByID(const QUuid& idx) {
+    
+    auto it = std::find_if(SubTasks.begin(), SubTasks.end(),
+        [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx; });
+    
+    if (it == SubTasks.end()) return false;
+    (*it)->setCompleted();
+
+    return true;
 }
 
 double CompositeTask::getCompletionPercentage() const {
@@ -57,9 +71,15 @@ QString CompositeTask::getInfo() const {
 
 const std::vector<std::unique_ptr<SimpleTask>>& CompositeTask::getSubTasks() const { return SubTasks; }
 
-SimpleTask* CompositeTask::getSubTask(int index) const {
+SimpleTask* CompositeTask::getSubTask(const QUuid& idx) const {
 
-    return (index >= 0 && index < static_cast<int>(SubTasks.size())) ? SubTasks[index].get() : nullptr;
+    auto it = std::find_if(SubTasks.begin(), SubTasks.end(), [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx; });
+    if(it != SubTasks.end()){
+
+        return (*it).get();
+    }
+
+    return nullptr;
 }
 
 void CompositeTask::update(const ActivityData& newData) {

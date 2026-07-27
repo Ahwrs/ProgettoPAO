@@ -8,9 +8,7 @@
 #include <QFile>
 #include <QJsonArray>
 
-
-
-Activity* ActivityManager::create(const ActivityData& data){
+std::unique_ptr<Activity> ActivityManager::build(const ActivityData& data){
 
     std::unique_ptr<Activity> newAct;
     switch(data.type){
@@ -32,7 +30,13 @@ Activity* ActivityManager::create(const ActivityData& data){
 
         default: return nullptr;
     }
-    acty.push_back(std::move(newAct));
+
+    return newAct;
+}
+
+Activity* ActivityManager::create(const ActivityData& data){
+
+    acty.push_back(build(data));
     return acty.back().get();   // puntatore osservatore, non owning
 }
 
@@ -40,7 +44,21 @@ void ActivityManager::del(const QUuid& idx) {
     
     auto it = std::find_if(acty.begin(), acty.end(), [&idx](const std::unique_ptr<Activity>& a) { return a->getID() == idx; });
     if (it != acty.end()) {
+        
         acty.erase(it);
+        emit activitiesChanged();
+        return;
+    }
+
+    // Secondo livello di delete, in caso l'attività cercata sia una SubTask.
+    for (auto& a : acty) {
+        if (CompositeTask* ct = dynamic_cast<CompositeTask*>(a.get())) {
+            if (ct->removeTask(idx)) {
+
+                emit activitiesChanged();
+                return;
+            }
+        }
     }
 }
 
@@ -64,6 +82,21 @@ std::vector<Activity*> ActivityManager::search(const ActivityFilter& filters) co
     return result;
 }
 
+void ActivityManager::completeSubTask(const QUuid& idx){
+
+    for (auto& a : acty) {
+
+        if (CompositeTask* ct = dynamic_cast<CompositeTask*>(a.get())) {
+
+            if (ct->completeByID(idx)) {
+
+                emit activitiesChanged();
+                return;
+            }
+        }
+    }
+}
+
 bool ActivityManager::save(const QString& path) const{
 
     QFile file(path);
@@ -85,10 +118,10 @@ bool ActivityManager::save(const QString& path) const{
 }
 
 bool ActivityManager::load(const QString& path){
-
-    try
-    {
-        acty.clear(); // Modificare il load() tenere conto di Appunti.txt
+    
+    std::vector<std::unique_ptr<Activity>> temp;
+    
+    try{
         QFile file(path);
         if(!file.open(QIODevice::ReadOnly)) return false;
 
@@ -100,8 +133,8 @@ bool ActivityManager::load(const QString& path){
 
         for(const QJsonValue& obj : arr){
 
-            Activity* ac = create(toActivityData(obj.toObject()));
-            if(CompositeTask* ct = dynamic_cast<CompositeTask*>(ac)){
+            std::unique_ptr<Activity> ac = build(toActivityData(obj.toObject()));
+            if(CompositeTask* ct = dynamic_cast<CompositeTask*>(ac.get())){
 
                     QJsonArray sub = obj["SubTasks"].toArray();
                     for(const QJsonValue& val : sub){
@@ -110,6 +143,8 @@ bool ActivityManager::load(const QString& path){
                         ct->addTask(std::make_unique<SimpleTask>(subData.title, subData.description, subData.isCompleted));
                     }
             }
+
+            temp.push_back(std::move(ac));
         } 
 
         file.close();
@@ -119,6 +154,8 @@ bool ActivityManager::load(const QString& path){
         emit IOError(e.what()); 
         return false;
     }
+
+    acty = std::move(temp);
 
     return true;
 }

@@ -7,7 +7,7 @@ SimpleTask::SimpleTask(const QString& t, const QString& d, bool Tc) : Task(t, d)
 
 QString SimpleTask::getInfo() const {
 
-    return getDescription();
+    return getTitle() + " " + getDescription();
 }
 
 QJsonObject SimpleTask::toJSON() const {
