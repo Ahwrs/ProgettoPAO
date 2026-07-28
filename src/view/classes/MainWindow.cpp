@@ -68,11 +68,11 @@ MainWindow::MainWindow(ActivityManager* m) : manager(m) {
     
     QScrollArea* scrollArea = new QScrollArea();
     scrollArea->setWidget(acty);
-    scrollArea->setWidgetResizable(true);   // FONDAMENTALE — senza questo, acty non si adatta alla larghezza dell'area
+    scrollArea->setWidgetResizable(true);   
     scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     stack->addWidget(selector);
-    stack->addWidget(scrollArea);   // metti scrollArea al posto di "acty" direttamente
+    stack->addWidget(scrollArea);   
     stack->setCurrentIndex(1);
 
     setCentralWidget(stack);

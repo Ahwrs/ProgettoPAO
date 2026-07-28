@@ -1,79 +1,94 @@
+// TaskRow.cpp
 #include "TaskRow.h"
 
-TaskRow::TaskRow(Activity* a, CompositeTask* parent, QWidget* p) : ActivityRow(a, p), prtComposite(parent){
+TaskRow::TaskRow(Activity* a, CompositeTask* parent, QWidget* p) : ActivityRow(a, p), prtComposite(parent) {
     
-    QWidget* CWidget = new QWidget();
-    QVBoxLayout* CLayout = new QVBoxLayout(CWidget);
+    QWidget* contentWidget = new QWidget();
+    QVBoxLayout* contentLayout = new QVBoxLayout(contentWidget);
 
     if (SimpleTask* st = dynamic_cast<SimpleTask*>(act)) {
-        
-        QPushButton* complete = new QPushButton("Completa");
-        complete->setIcon(QApplication::style()->standardIcon(QStyle::SP_DialogApplyButton));
 
-        complete->setStyleSheet(
+        QLabel* desc = new QLabel(act->getDescription());
+        contentLayout->addWidget(desc);
+
+        QPushButton* completeBtn = new QPushButton("Completa");
+        completeBtn->setIcon(QIcon(":/Check.svg"));
+        completeBtn->setStyleSheet(
             "QPushButton {"
-            "   border: 2px solid #388E3C;"  
+            "   border: 2px solid #388E3C;"
             "   border-radius: 6px;"
             "   padding: 5px 10px;"
-            "   color: #388E3C;"            
+            "   color: #388E3C;"
             "   background-color: transparent;"
             "}"
-            "QPushButton:hover {"
-            "   background-color: #E8F5E9;" 
-            "}"
             "QPushButton:pressed {"
-            "   background-color: #C8E6C9;"
+            "   border: 2px solid green;"
+            "   background-color: rgba(255, 255, 255, 25);"
             "}"
         );
-        
-        QLabel* desc = new QLabel();
-        desc->setText(act->getDescription());
-        CLayout->addWidget(desc);
-        QHBoxLayout* BTNLayout = new QHBoxLayout();
 
-        connect(complete, &QPushButton::clicked, this, [this]{
+        auto setCompleted = [this] {
 
-            QString msg = prtComposite 
-            ? "Una volta completata l'attivita' non sara' piu' disponibile per l'interazione. Continuare?"
-            : "Una volta completata l'attivita' non sara' piu' disponibile per l'interazione, e verra' eliminata al prossimo avvio dell'applicazione. Continuare?";
-        
-            if(QMessageBox::question(this, "Attenzione", msg) == QMessageBox::Yes){
+            closeContent();
+            this->setEnabled(false);
+        };
 
-                closeContent();
-                this->setEnabled(false);
-                this->setStyleSheet("QWidget:disabled { background-color: #006400;}");
+        connect(completeBtn, &QPushButton::clicked, this, [this, setCompleted] {
+
+            QString msg = prtComposite
+                ? "Una volta completata l'attività non sarà più disponibile per l'interazione. Continuare?"
+                : "Una volta completata l'attività non sarà più disponibile per l'interazione, e verrà eliminata al prossimo avvio dell'applicazione. Continuare?";
+            
+            if (QMessageBox::question(this, "Attenzione", msg) == QMessageBox::Yes) {
+                
+                setCompleted();
                 emit completeReq(act->getID());
             }
         });
 
-        if(st->isCompleted()){
+        if (st->isCompleted()) {
 
-            closeContent();
-            this->setStyleSheet("QWidget:disabled { background-color: #006400;}");
-            this->setEnabled(false);
+            setCompleted();
         }
 
-        BTNLayout->addWidget(complete);
-        BTNLayout->addWidget(del);
-        CLayout->addLayout(BTNLayout);
+        QHBoxLayout* buttonLayout = new QHBoxLayout();
+        buttonLayout->addWidget(completeBtn);
+        buttonLayout->addWidget(del);
+        contentLayout->addLayout(buttonLayout);
+    }
+    else if (CompositeTask* ct = dynamic_cast<CompositeTask*>(act)) {
 
-    } else if (CompositeTask* ct = dynamic_cast<CompositeTask*>(act)) {
-       
         QProgressBar* bar = new QProgressBar();
         bar->setRange(0, 100);
         bar->setValue(static_cast<int>(ct->getCompletionPercentage()));
-        CLayout->addWidget(bar);
+        bar->setStyleSheet(
+            "QProgressBar {"
+            "   border: none;"
+            "   background-color: rgba(66, 66, 66, 0.5);"
+            "   border-radius: 5px;"
+            "   min-height: 10px;"
+            "   max-height: 10px;"
+            "   text-align: center;"
+            "}"
+            "QProgressBar::chunk {"
+            "   background-color: rgb(124,58,237);"
+            "   border-radius: 5px;"
+            "}"
+        );
 
-        for(const auto& sub : ct->getSubTasks()){
+        bar->setTextVisible(false);
+        contentLayout->addWidget(bar);
 
-            TaskRow* subRow = new TaskRow(sub.get(), ct); 
+        for (const auto& sub : ct->getSubTasks()) {
+            
+            TaskRow* subRow = new TaskRow(sub.get(), ct);
             connect(subRow, &TaskRow::completeReq, this, &TaskRow::completeReq);
             connect(subRow, &ActivityRow::remove, this, &ActivityRow::remove);
-            CLayout->addWidget(subRow);
+            contentLayout->addWidget(subRow);
         }
 
-        CLayout->addWidget(del);
+        contentLayout->addWidget(del);
     }
 
-    addContent(CWidget);
+    addContent(contentWidget);
 }

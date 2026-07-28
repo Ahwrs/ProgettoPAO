@@ -17,9 +17,14 @@ private:
     QPushButton* next;
     QPushButton* last;
 
+    void updateDayLabels();
+
 public:
 
     DaySelectorWidget(QWidget* parent = nullptr);
+
+public slots:
+
     void refreshSelector(int day);
 
 };

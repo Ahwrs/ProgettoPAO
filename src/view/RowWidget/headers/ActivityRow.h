@@ -1,37 +1,35 @@
-#ifndef ACTIVITY_ROW__H
-#define ACTIVITY_ROW__H
+#ifndef ACTIVITY_ROW_H
+#define ACTIVITY_ROW_H
 
 #include "Activity.h"
 #include <QWidget>
 #include <QLabel>
 #include <QPushButton>
-#include <QBoxLayout>
-#include <QApplication>
+#include <QVBoxLayout>
 #include <QMessageBox>
-#include <QStyle>
+#include <QUuid>
 
-class ActivityRow : public QWidget{
+class ActivityRow : public QWidget {
     Q_OBJECT
-    
+
 private:
     QLabel* header;
     QWidget* content;
     QPushButton* expand;
     QVBoxLayout* box;
 
-protected:
-    Activity* act;
-    QPushButton* del;
-    void addContent(QWidget* c);
-    void closeContent();
-
 public:
-
     ActivityRow(Activity* activity, QWidget* parent = nullptr);
 
-signals:
+    protected:
+    Activity* act;
+    QPushButton* del;
 
-    void remove(const QUuid& idx);
+    void addContent(QWidget* content);
+    void closeContent();
+
+signals:
+    void remove(const QUuid& id);
 
 };
 

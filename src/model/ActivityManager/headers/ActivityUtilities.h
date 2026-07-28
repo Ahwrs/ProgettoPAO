@@ -73,4 +73,79 @@ inline ActivityData toActivityData(const QJsonObject& obj) {
     return data;
 }
 
+inline QString categoryStyle(Activity::ActivityCategory c) {
+
+    QString QMsgStyle = "{"
+        "ActivityRow QMessage{"
+        ""
+    "}";
+
+    switch (c) {
+        case Activity::ActivityCategory::Event:
+            return "ActivityRow {"
+                "   border: 2px solid rgba(59,130,246,1);"
+                "   border-radius: 6px;"
+                "   padding: 5px 10px;"
+                "   background-color: rgba(59,130,246,0.1);"
+                "   color: white;"
+                "}"
+                "   ActivityRow QLabel, ActivityRow QWidget {"
+                "   color: white;"
+                "   font-family: Arial;"
+                "   background-color: transparent;"
+                "   font-weight: 700;"
+                "}";                
+
+        case Activity::ActivityCategory::Appointment:
+            return "ActivityRow {"
+                "   border: 2px solid rgba(124,58,237,1);" 
+                "   border-radius: 6px;"
+                "   padding: 5px 10px;"                
+                "   background-color: rgba(124,58,237,0.1);" 
+                "   color: white;"
+                "}"
+                "   ActivityRow QLabel, ActivityRow QWidget {"
+                "   color: white;"
+                "   font-family: Arial;"
+                "   background-color: transparent;"
+                "   font-weight: 700;"
+                "}";
+
+        case Activity::ActivityCategory::SimpleTask:
+            return "ActivityRow {"
+                "   border: 2px solid rgba(124,58,237,1);"
+                "   border-radius: 6px;"
+                "   padding: 5px 10px;"
+                "   background-color: rgba(124,58,237, 0.1);"
+                "}"
+                "   ActivityRow QLabel, ActivityRow QWidget {"
+                "   color: rgba(240, 229, 255, 0.9);"
+                "   font-family: Arial;"
+                "   background-color: transparent;"
+                "   font-weight: 700;"
+                "}"
+                "ActivityRow:disabled {"
+                "   background-color: rgba(66, 66, 66, 0.5);"
+                "}"
+                "ActivityRow:disabled QPushButton{"
+                "   border: none;"
+                "}";
+
+        case Activity::ActivityCategory::CompositeTask:
+            return "ActivityRow {"
+                "   border: 2px solid rgba(245,158,11,1);" 
+                "   border-radius: 6px;"
+                "   padding: 5px 10px;"                
+                "   background-color: rgba(245,158,11,0.1);" 
+                "}"
+                "   ActivityRow QLabel, ActivityRow QWidget {"
+                "   color: #F59E0B;"
+                "   font-family: Arial;"
+                "   background-color: transparent;"
+                "   font-weight: 700;"
+                "}";
+    }
+    return QString();
+}
+
 #endif

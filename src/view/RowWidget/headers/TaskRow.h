@@ -9,11 +9,12 @@
 class TaskRow : public ActivityRow {
     Q_OBJECT
 
+private:
     CompositeTask* prtComposite;
 
 public:
 
-    TaskRow(Activity* a, CompositeTask* prtComposite = nullptr, QWidget* parent = nullptr);
+    TaskRow(Activity* a, CompositeTask* parentComposite = nullptr, QWidget* parent = nullptr);
 
 signals:
 

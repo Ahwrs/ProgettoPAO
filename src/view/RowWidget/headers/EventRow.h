@@ -3,13 +3,12 @@
 
 #include "ActivityRow.h"
 
-class EventRow : public ActivityRow{
+class EventRow : public ActivityRow {
     Q_OBJECT
 
 public:
-
     EventRow(Activity* a, QWidget* parent = nullptr);
-
+    
 };
 
 #endif

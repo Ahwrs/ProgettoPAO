@@ -1,59 +1,58 @@
 #include "ActivityRow.h"
+#include "ActivityUtilities.h"
 
-
-ActivityRow::ActivityRow(Activity* a, QWidget* p): QWidget(p), act(a){
+ActivityRow::ActivityRow(Activity* a, QWidget* p) : QWidget(p), act(a), content(nullptr) {
+    
+    setAttribute(Qt::WA_StyledBackground, true);
+    setStyleSheet(categoryStyle(act->getCategory()));
 
     box = new QVBoxLayout(this);
 
     header = new QLabel();
-    content = nullptr;
-    expand = new QPushButton();
-    
-    del = new QPushButton("Elimina");
-    del->setIcon(QApplication::style()->standardIcon(QStyle::SP_TrashIcon));
+    header->setText(a->getTitle());
 
+    expand = new QPushButton();
+    expand->setIcon(QIcon(":/Right.svg"));
+    expand->setIconSize(QSize(18, 18));
+    expand->setFixedSize(20, 20);
+    connect(expand, &QPushButton::clicked, this, [this] {
+        
+        if (!content) return;
+        bool isVisible = content->isVisible();
+        content->setVisible(!isVisible);
+        expand->setIcon(QIcon(isVisible ? ":/Right.svg" : ":/Down.svg"));
+    });
+
+    del = new QPushButton("Elimina");
+    del->setIcon(QIcon(":/Trash.svg"));
+    del->setIconSize(QSize(18, 18));
     del->setStyleSheet(
         "QPushButton {"
-        "   border: 2px solid #D32F2F;"  
-        "   border-radius: 6px;"      
-        "   padding: 5px 10px;"          
-        "   color: #D32F2F;"             
+        "   border: 2px solid #D32F2F;"
+        "   border-radius: 6px;"
+        "   padding: 5px 10px;"
+        "   color: #D32F2F;"
         "   background-color: transparent;"
         "}"
-        "QPushButton:hover {"
-        "   background-color: #FFEBEE;"
-        "}"
         "QPushButton:pressed {"
-        "   background-color: #FFCDD2;"
+        "   border: 2px solid red;"
+        "   background-color: rgba(255, 255, 255, 25);"
         "}"
     );
 
-    connect(del, &QPushButton::clicked, this, [this]{
-
-        QString msg = "Procedendo si eliminera' l'attivita' definitivamente. Continuare?";
-        if(QMessageBox::question(this, "Attenzione", msg) == QMessageBox::Yes) emit remove(act->getID());
-
+    connect(del, &QPushButton::clicked, this, [this] {
+        QString msg = "Procedendo si eliminerà l'attività definitivamente. Continuare?";
+        if (QMessageBox::question(this, "Attenzione", msg) == QMessageBox::Yes) {
+            emit remove(act->getID());
+        }
     });
 
-    QWidget* HBox = new QWidget();
-    QHBoxLayout* HLayout = new QHBoxLayout(HBox);
-
-    header->setText(a->getTitle());
-    HLayout->addWidget(header);
-
-    expand->setText(">");
-    connect(expand, &QPushButton::clicked, this, [this]{
-
-        if(!content) return;
-        bool isV = content->isVisible();
-        content->setVisible(!isV);
-        expand->setText(isV ? ">":"∧");
-    });
-
-    HLayout->addStretch();
-    HLayout->addWidget(expand);
-    box->addWidget(HBox);
-}   
+    QHBoxLayout* headerLayout = new QHBoxLayout();
+    headerLayout->addWidget(header);
+    headerLayout->addStretch();
+    headerLayout->addWidget(expand);
+    box->addLayout(headerLayout);
+}
 
 void ActivityRow::addContent(QWidget* c) {
 
@@ -63,8 +62,9 @@ void ActivityRow::addContent(QWidget* c) {
 }
 
 void ActivityRow::closeContent() {
+    
     if (content) {
         content->hide();
-        expand->setText(">"); 
+        expand->setIcon(QIcon(":/Right.svg"));
     }
 }
