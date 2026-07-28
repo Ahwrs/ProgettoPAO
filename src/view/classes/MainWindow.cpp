@@ -41,8 +41,8 @@ MainWindow::MainWindow(ActivityManager* m) : manager(m) {
     cp->addTask(std::make_unique<SimpleTask>("Sub 2 (gia' completata)", "Descrizione sub 2", true));
     cp->addTask(std::make_unique<SimpleTask>("Sub 3", "Descrizione sub 3", false));
 
-    ActivityRow* rEvent = new ActivityRow(e);
-    ActivityRow* rAppointment = new ActivityRow(a);
+    ActivityRow* rEvent = new EventRow(e);
+    ActivityRow* rAppointment = new EventRow(a);
     TaskRow* rIsolata = new TaskRow(isolata);
     TaskRow* rIsolataFatta = new TaskRow(isolataFatta);
     TaskRow* rComposite = new TaskRow(cp);

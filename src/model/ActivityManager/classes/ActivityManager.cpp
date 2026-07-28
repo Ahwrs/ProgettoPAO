@@ -6,6 +6,7 @@
 #include "CompositeTask.h"
 
 #include <QFile>
+#include <QJsonDocument>
 #include <QJsonArray>
 
 std::unique_ptr<Activity> ActivityManager::build(const ActivityData& data){

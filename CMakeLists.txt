@@ -25,15 +25,19 @@ add_executable(Calendar
     src/model/ActivityManager/classes/ActivityManager.cpp
     src/model/ActivityManager/headers/ActivityManager.h
 
-    # View
+    # View .cpp
     src/view/classes/MainWindow.cpp
     src/view/classes/DaySelectorWidget.cpp
     src/view/RowWidget/classes/ActivityRow.cpp
+    src/view/RowWidget/classes/TaskRow.cpp
+    src/view/RowWidget/classes/EventRow.cpp
+    
+    # View .h
+    src/view/RowWidget/headers/TaskRow.h
+    src/view/RowWidget/headers/EventRow.h
     src/view/headers/MainWindow.h
     src/view/headers/DaySelectorWidget.h
     src/view/RowWidget/headers/ActivityRow.h
-    src/view/RowWidget/classes/TaskRow.cpp
-    src/view/RowWidget/headers/TaskRow.h
 )
 
 target_include_directories(Calendar PRIVATE
