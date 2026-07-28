@@ -8,6 +8,7 @@
 class DayViewWidget;
 
 class MainWindow : public QMainWindow {
+    Q_OBJECT
 
     ActivityManager* manager;
     QStackedWidget* stack;      

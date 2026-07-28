@@ -4,12 +4,6 @@
 
 SimpleTask::SimpleTask(const QString& t, const QString& d, bool Tc) : Task(t, d), TaskCompleted(Tc) {}
 
-
-QString SimpleTask::getInfo() const {
-
-    return getTitle() + " " + getDescription();
-}
-
 QJsonObject SimpleTask::toJSON() const {
 
     QJsonObject obj = Activity::toJSON();

@@ -24,6 +24,11 @@ struct ActivityData{
     bool isCompleted = false;
 };
 
+inline QString safeURL(const QString& url){
+
+    return url.startsWith("https://") || url.startsWith("http://") ? url : "https://" + url;
+}
+
 inline QString CatToString(Activity::ActivityCategory c) {
 
     switch (c) {

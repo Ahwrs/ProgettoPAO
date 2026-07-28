@@ -28,7 +28,7 @@ public:
     bool completeByID(const QUuid& idx);
     double getCompletionPercentage() const;
     bool isCompleted() const override;
-    virtual QString getInfo() const override;
+    QString getInfo() const;
 };
 
 #endif

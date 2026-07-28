@@ -28,7 +28,12 @@ add_executable(Calendar
     # View
     src/view/classes/MainWindow.cpp
     src/view/classes/DaySelectorWidget.cpp
+    src/view/RowWidget/classes/ActivityRow.cpp
     src/view/headers/MainWindow.h
+    src/view/headers/DaySelectorWidget.h
+    src/view/RowWidget/headers/ActivityRow.h
+    src/view/RowWidget/classes/TaskRow.cpp
+    src/view/RowWidget/headers/TaskRow.h
 )
 
 target_include_directories(Calendar PRIVATE
@@ -36,6 +41,7 @@ target_include_directories(Calendar PRIVATE
     ${CMAKE_SOURCE_DIR}/src/model/ActivityFilters/headers/
     ${CMAKE_SOURCE_DIR}/src/model/ActivityManager/headers/
     ${CMAKE_SOURCE_DIR}/src/view/headers
+    ${CMAKE_SOURCE_DIR}/src/view/RowWidget/headers
 )
 target_link_libraries(Calendar PRIVATE Qt6::Widgets)
 

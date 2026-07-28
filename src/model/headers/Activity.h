@@ -24,7 +24,6 @@ public:
     Activity(const Activity&) = delete;
     Activity& operator=(const Activity&) = delete;
 
-    virtual QString getInfo() const = 0; 
     virtual ActivityCategory getCategory() const = 0;
 
     virtual void update(const ActivityData& newData);

@@ -61,7 +61,7 @@ QString CompositeTask::getInfo() const {
         for (const std::unique_ptr<SimpleTask>& t : SubTasks) {
             
             
-            QString childInfo = t->getInfo();
+            QString childInfo = t->getDescription();
             result += "\n"+childInfo;           
             
         }

@@ -2,11 +2,13 @@
 #define DAY_SELECTOR_WIDGET_H
 
 #include <QDate>
+#include <QWidget>
 #include <vector>
 #include <QPushButton>
 #include <QLabel>
 
 class DaySelectorWidget : public QWidget {
+    Q_OBJECT
 
 private:
 

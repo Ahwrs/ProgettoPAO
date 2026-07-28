@@ -82,12 +82,20 @@ std::vector<Activity*> ActivityManager::search(const ActivityFilter& filters) co
     return result;
 }
 
-void ActivityManager::completeSubTask(const QUuid& idx){
+void ActivityManager::completeTask(const QUuid& idx){
 
+    auto it = std::find_if(acty.begin(), acty.end(), [&idx](const std::unique_ptr<Activity>& a) { return a->getID() == idx; });
+    if (it != acty.end()) {
+        if(SimpleTask* st = dynamic_cast<SimpleTask*>((*it).get())){
+            st->setCompleted();
+            emit activitiesChanged();
+            return;
+        }
+    }
+
+    // Secondo livello di complete, in caso l'attività cercata sia una SubTask.
     for (auto& a : acty) {
-
         if (CompositeTask* ct = dynamic_cast<CompositeTask*>(a.get())) {
-
             if (ct->completeByID(idx)) {
 
                 emit activitiesChanged();
@@ -117,45 +125,62 @@ bool ActivityManager::save(const QString& path) const{
     return true;
 }
 
-bool ActivityManager::load(const QString& path){
-    
+bool ActivityManager::load(const QString& path)
+{
     std::vector<std::unique_ptr<Activity>> temp;
-    
-    try{
+
+    try
+    {
         QFile file(path);
-        if(!file.open(QIODevice::ReadOnly)) return false;
+        if (!file.open(QIODevice::ReadOnly)) return false;
 
-        QByteArray bytes = file.readAll();
-        QJsonDocument doc = QJsonDocument::fromJson(bytes);
+        const QByteArray bytes = file.readAll();
+        const QJsonDocument doc = QJsonDocument::fromJson(bytes);
 
-        if(!doc.isArray()){ emit IOError("Formato JSON non valido"); return false;}
-        QJsonArray arr = doc.array();
+        if (!doc.isArray())
+        {
+            emit IOError("Formato JSON non valido");
+            return false;
+        }
 
-        for(const QJsonValue& obj : arr){
+        const QJsonArray arr = doc.array();
 
-            std::unique_ptr<Activity> ac = build(toActivityData(obj.toObject()));
-            if(CompositeTask* ct = dynamic_cast<CompositeTask*>(ac.get())){
+        for (const QJsonValue& val : arr)
+        {
+            const QJsonObject obj = val.toObject();
+            std::unique_ptr<Activity> ac = build(toActivityData(obj));
 
-                    QJsonArray sub = obj["SubTasks"].toArray();
-                    for(const QJsonValue& val : sub){
+            if (auto* ct = dynamic_cast<CompositeTask*>(ac.get()))
+            {
+                const QJsonArray subTasks = obj["SubTasks"].toArray();
+                for (const QJsonValue& subValue : subTasks)
+                {
+                    ActivityData subData = toActivityData(subValue.toObject());
 
-                        ActivityData subData = toActivityData(val.toObject());
-                        ct->addTask(std::make_unique<SimpleTask>(subData.title, subData.description, subData.isCompleted));
-                    }
+                    ct->addTask(std::make_unique<SimpleTask>(
+                        subData.title,
+                        subData.description,
+                        subData.isCompleted));
+                }
+
+                if (ct->isCompleted())
+                    continue;
+            }
+            else if (auto* st = dynamic_cast<SimpleTask*>(ac.get()))
+            {
+                if (st->isCompleted())
+                    continue;
             }
 
             temp.push_back(std::move(ac));
-        } 
-
-        file.close();
-    
-    }catch(const std::invalid_argument& e){
-
-        emit IOError(e.what()); 
+        }
+    }
+    catch (const std::invalid_argument& e)
+    {
+        emit IOError(e.what());
         return false;
     }
 
     acty = std::move(temp);
-
     return true;
 }

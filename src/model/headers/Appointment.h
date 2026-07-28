@@ -16,8 +16,6 @@ public:
                 const QDate& date, const QTime& start, const QTime& end,
                 const QString& link, bool isOnline);
     virtual ~Appointment() = default;
-
-    virtual QString getInfo() const override;
     
     virtual void update(const ActivityData& newData) override;
     virtual ActivityCategory getCategory() const override;

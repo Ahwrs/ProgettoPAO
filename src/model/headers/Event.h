@@ -16,8 +16,6 @@ public:
           const QDate& date, const QTime& start, const QTime& end);
     virtual ~Event() = default;
 
-    virtual QString getInfo() const override;
-
     virtual void update(const ActivityData& newData) override;
     virtual ActivityCategory getCategory() const override;
     virtual QJsonObject toJSON() const override;

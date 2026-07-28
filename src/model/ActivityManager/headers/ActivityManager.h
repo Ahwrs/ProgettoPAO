@@ -25,7 +25,7 @@ public:
     void del(const QUuid& idx);
     std::vector<Activity*> search(const ActivityFilter& filters) const;
     void edit(const QUuid& idx, const ActivityData& newData);
-    void completeSubTask(const QUuid& idx);
+    void completeTask(const QUuid& idx);
 
     bool save(const QString& path) const;
     bool load(const QString& path);

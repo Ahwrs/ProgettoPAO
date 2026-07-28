@@ -6,15 +6,12 @@ Appointment::Appointment(const QString& title, const QString& description,
                 const QString& link, bool isOnline) :
 
                 Event(title, description, date, start, end),
-                isOnline(isOnline), link(link) {}
+                isOnline(isOnline), link(safeURL(link)) {}
 
 QString Appointment::getLink() const { return link; }
 bool Appointment::getIsOnline() const { return isOnline; }
-QString Appointment::getInfo() const {
 
-    return Event::getInfo() + (isOnline ? "\nMeeting: " : "\nLocation: ") + link;
-}
-void Appointment::setLink(const QString& l) { link = l;}
+void Appointment::setLink(const QString& l) { link = safeURL(l);}
 void Appointment::setIsOnline(const bool isO) { isOnline = isO;}
 
 void Appointment::update(const ActivityData& newData) { 
