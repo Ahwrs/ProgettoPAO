@@ -27,21 +27,38 @@ set(MODEL_HEADERS
 )
 
 set(VIEW_SOURCES
-    src/view/classes/MainWindow.cpp
-    src/view/classes/DaySelectorWidget.cpp
+    src/view/MainWidget/classes/MainWindow.cpp
+    src/view/MainWidget/classes/DaySelectorWidget.cpp
+    src/view/MainWidget/classes/DayViewWidget.cpp        
+    src/view/PopupWidget/classes/PopupWidget.cpp
+    src/view/PopupWidget/classes/ConfirmPopup.cpp
     src/view/RowWidget/classes/ActivityRow.cpp
     src/view/RowWidget/classes/TaskRow.cpp
     src/view/RowWidget/classes/EventRow.cpp
+    src/view/FormWidget/classes/ActivityForm.cpp
+    src/view/FormWidget/classes/SubTaskEntry.cpp
 )
 
 set(VIEW_HEADERS
-    src/view/headers/MainWindow.h
-    src/view/headers/DaySelectorWidget.h
+    src/view/MainWidget/headers/MainWindow.h
+    src/view/MainWidget/headers/DaySelectorWidget.h
+    src/view/MainWidget/headers/DayViewWidget.h          
+    src/view/PopupWidget/headers/PopupWidget.h
+    src/view/PopupWidget/headers/ConfirmPopup.h
     src/view/RowWidget/headers/ActivityRow.h
     src/view/RowWidget/headers/TaskRow.h
     src/view/RowWidget/headers/EventRow.h
+    src/view/FormWidget/headers/ActivityForm.h
+    src/view/FormWidget/headers/SubTaskEntry.h
 )
 
+set(CONTROLLER_SOURCES
+    src/controller/classes/AppController.cpp
+)
+
+set(CONTROLLER_HEADERS
+    src/controller/headers/AppController.h
+)
 
 add_executable(Calendar
     main.cpp
@@ -50,15 +67,20 @@ add_executable(Calendar
     ${MODEL_HEADERS}
     ${VIEW_SOURCES}
     ${VIEW_HEADERS}
+    ${CONTROLLER_SOURCES}      
+    ${CONTROLLER_HEADERS}     
 )
 
 
 target_include_directories(Calendar PRIVATE
-    ${CMAKE_SOURCE_DIR}/src/model/headers/
-    ${CMAKE_SOURCE_DIR}/src/model/ActivityFilters/headers/
-    ${CMAKE_SOURCE_DIR}/src/model/ActivityManager/headers/
-    ${CMAKE_SOURCE_DIR}/src/view/headers
+    ${CMAKE_SOURCE_DIR}/src/model/headers
+    ${CMAKE_SOURCE_DIR}/src/model/ActivityFilters/headers
+    ${CMAKE_SOURCE_DIR}/src/model/ActivityManager/headers
+    ${CMAKE_SOURCE_DIR}/src/view/MainWidget/headers
     ${CMAKE_SOURCE_DIR}/src/view/RowWidget/headers
+    ${CMAKE_SOURCE_DIR}/src/view/PopupWidget/headers
+    ${CMAKE_SOURCE_DIR}/src/view/FormWidget/headers
+    ${CMAKE_SOURCE_DIR}/src/controller/headers     
 )
 
 

@@ -1,5 +1,6 @@
 #include "ActivityRow.h"
 #include "ActivityUtilities.h"
+#include "ConfirmPopup.h"
 
 ActivityRow::ActivityRow(Activity* a, QWidget* p) : QWidget(p), act(a), content(nullptr) {
     
@@ -10,6 +11,7 @@ ActivityRow::ActivityRow(Activity* a, QWidget* p) : QWidget(p), act(a), content(
 
     header = new QLabel();
     header->setText(a->getTitle());
+    header->setObjectName("header");
 
     expand = new QPushButton();
     expand->setIcon(QIcon(":/Right.svg"));
@@ -33,19 +35,23 @@ ActivityRow::ActivityRow(Activity* a, QWidget* p) : QWidget(p), act(a), content(
         "   padding: 5px 10px;"
         "   color: #D32F2F;"
         "   background-color: transparent;"
+        "   margin-top: 20%;"
         "}"
-        "QPushButton:pressed {"
+        "QPushButton:pressed, QPushButton:hover {"
         "   border: 2px solid red;"
         "   background-color: rgba(255, 255, 255, 25);"
         "}"
     );
 
     connect(del, &QPushButton::clicked, this, [this] {
-        QString msg = "Procedendo si eliminerà l'attività definitivamente. Continuare?";
-        if (QMessageBox::question(this, "Attenzione", msg) == QMessageBox::Yes) {
-            emit remove(act->getID());
-        }
+
+        ConfirmPopup* popup = new ConfirmPopup("Procedendo si eliminerà l'attività definitivamente. \nContinuare?", this);
+        connect(popup, &ConfirmPopup::confirmed, this, [this]{ emit remove(act->getID()); });
+        popup->showCenteredTop(del);
     });
+
+    modify = new QPushButton("Modifica");
+    connect(modify, &QPushButton::clicked, this, [this]{ emit edit(act->getID()); });
 
     QHBoxLayout* headerLayout = new QHBoxLayout();
     headerLayout->addWidget(header);

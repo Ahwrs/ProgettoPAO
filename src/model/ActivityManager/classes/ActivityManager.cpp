@@ -83,6 +83,12 @@ std::vector<Activity*> ActivityManager::search(const ActivityFilter& filters) co
     return result;
 }
 
+Activity* ActivityManager::findByID(const QUuid& id) const {
+
+    auto it = std::find_if(acty.begin(), acty.end(), [&id](const std::unique_ptr<Activity>& a){ return a->getID() == id; });
+    return (it != acty.end()) ? it->get() : nullptr;
+}
+
 void ActivityManager::completeTask(const QUuid& idx){
 
     auto it = std::find_if(acty.begin(), acty.end(), [&idx](const std::unique_ptr<Activity>& a) { return a->getID() == idx; });

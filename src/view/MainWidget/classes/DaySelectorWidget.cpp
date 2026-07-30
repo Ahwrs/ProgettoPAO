@@ -1,4 +1,3 @@
-// DaySelectorWidget.cpp
 #include "DaySelectorWidget.h"
 #include <QBoxLayout>
 

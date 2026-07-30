@@ -1,5 +1,5 @@
-// TaskRow.cpp
 #include "TaskRow.h"
+#include "ConfirmPopup.h"
 
 TaskRow::TaskRow(Activity* a, CompositeTask* parent, QWidget* p) : ActivityRow(a, p), prtComposite(parent) {
     
@@ -20,6 +20,7 @@ TaskRow::TaskRow(Activity* a, CompositeTask* parent, QWidget* p) : ActivityRow(a
             "   padding: 5px 10px;"
             "   color: #388E3C;"
             "   background-color: transparent;"
+            "   margin-top: 20%;"
             "}"
             "QPushButton:pressed {"
             "   border: 2px solid green;"
@@ -35,15 +36,17 @@ TaskRow::TaskRow(Activity* a, CompositeTask* parent, QWidget* p) : ActivityRow(a
 
         connect(completeBtn, &QPushButton::clicked, this, [this, setCompleted] {
 
-            QString msg = prtComposite
-                ? "Una volta completata l'attività non sarà più disponibile per l'interazione. Continuare?"
-                : "Una volta completata l'attività non sarà più disponibile per l'interazione, e verrà eliminata al prossimo avvio dell'applicazione. Continuare?";
+            ConfirmPopup* popup = new ConfirmPopup(prtComposite
+                ? "Una volta completata l'attività non sarà più disponibile per l'interazione. \nContinuare?"
+                : "Una volta completata l'attività non sarà più disponibile per l'interazione, \ne verrà eliminata al prossimo avvio dell'applicazione. Continuare?", this);
             
-            if (QMessageBox::question(this, "Attenzione", msg) == QMessageBox::Yes) {
-                
+            connect(popup, &ConfirmPopup::confirmed, this, [this, setCompleted]{ 
+
                 setCompleted();
                 emit completeReq(act->getID());
-            }
+            });
+            
+            popup->showCenteredTop(del);
         });
 
         if (st->isCompleted()) {
@@ -53,6 +56,7 @@ TaskRow::TaskRow(Activity* a, CompositeTask* parent, QWidget* p) : ActivityRow(a
 
         QHBoxLayout* buttonLayout = new QHBoxLayout();
         buttonLayout->addWidget(completeBtn);
+        buttonLayout->addWidget(modify);
         buttonLayout->addWidget(del);
         contentLayout->addLayout(buttonLayout);
     }

@@ -21,16 +21,17 @@ private:
 public:
     ActivityRow(Activity* activity, QWidget* parent = nullptr);
 
-    protected:
+protected:
     Activity* act;
     QPushButton* del;
+    QPushButton* modify;
 
     void addContent(QWidget* content);
     void closeContent();
 
 signals:
     void remove(const QUuid& id);
-
+    void edit(const QUuid& id);
 };
 
 #endif

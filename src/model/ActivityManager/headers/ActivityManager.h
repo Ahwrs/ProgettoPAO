@@ -26,6 +26,8 @@ public:
     std::vector<Activity*> search(const ActivityFilter& filters) const;
     void edit(const QUuid& idx, const ActivityData& newData);
     void completeTask(const QUuid& idx);
+    
+    Activity* findByID(const QUuid& id) const;
 
     bool save(const QString& path) const;
     bool load(const QString& path);

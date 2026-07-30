@@ -1,6 +1,4 @@
 #include "CompositeTask.h"
-#include "ActivityUtilities.h"
-
 #include <utility>
 #include <QJsonArray>
 
@@ -85,6 +83,7 @@ SimpleTask* CompositeTask::getSubTask(const QUuid& idx) const {
 void CompositeTask::update(const ActivityData& newData) {
     
     setTitle(newData.title);
+    syncSubTasks(newData.subTasks);
 }
 
 QJsonObject CompositeTask::toJSON() const {
@@ -101,6 +100,32 @@ QJsonObject CompositeTask::toJSON() const {
     obj["CategoryType"] = CatToString(getCategory());
 
     return obj;
+}
+
+void CompositeTask::syncSubTasks(const std::vector<SubTaskData>& entries){
+
+    std::vector<QUuid> ids;
+    for (const auto& s : SubTasks) {
+
+        auto it = std::find_if(entries.begin(), entries.end(),
+            [&](const SubTaskData& e){ return e.id == s->getID(); });
+
+        if (it == entries.end()) ids.push_back(s->getID());
+    }
+    for (const QUuid& id : ids) removeTask(id);
+
+    for (const auto& t : entries) {
+
+        if (!t.id.isNull()) {
+
+            if (SimpleTask* st = getSubTask(t.id)) {
+                st->setTitle(t.title);
+                st->setDescription(t.description);
+            }
+        } else {
+            addTask(std::make_unique<SimpleTask>(t.title, t.description));
+        }
+    }
 }
 
 Activity::ActivityCategory CompositeTask::getCategory() const {return Activity::ActivityCategory::CompositeTask;}

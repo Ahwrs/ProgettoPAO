@@ -3,6 +3,7 @@
 
 #include "Task.h"
 #include "SimpleTask.h"
+#include "ActivityUtilities.h"
 #include <memory>
 #include <vector>
 
@@ -10,6 +11,7 @@ class CompositeTask : public Task {
 private:
 
     std::vector<std::unique_ptr<SimpleTask>> SubTasks;
+    void syncSubTasks(const std::vector<SubTaskData>& entries);
 
 public:
     CompositeTask(const QString& title);

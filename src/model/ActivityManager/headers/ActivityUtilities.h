@@ -2,12 +2,16 @@
 #define ACTIVITY_UTILITIES_H
 
 #include "Activity.h"
-#include <iostream>
-#include <string>
-#include <sstream>
 #include <QString>
 #include <QDate>
 #include <QTime>
+#include <vector>
+
+struct SubTaskData {
+    QUuid id;       
+    QString title;
+    QString description;
+};
 
 struct ActivityData{
 
@@ -22,6 +26,8 @@ struct ActivityData{
 
     bool isOnline = false;
     bool isCompleted = false;
+
+    std::vector<SubTaskData> subTasks; //Usato solo se type == CompositeTask
 };
 
 inline QString safeURL(const QString& url){
@@ -75,20 +81,15 @@ inline ActivityData toActivityData(const QJsonObject& obj) {
 
 inline QString categoryStyle(Activity::ActivityCategory c) {
 
-    QString QMsgStyle = "{"
-        "ActivityRow QMessage{"
-        ""
-    "}";
-
     switch (c) {
         case Activity::ActivityCategory::Event:
             return "ActivityRow {"
-                "   border: 2px solid rgba(59,130,246,1);"
+                "   border: 2px solid rgba(34,197,94,1);"
                 "   border-radius: 6px;"
                 "   padding: 5px 10px;"
-                "   background-color: rgba(59,130,246,0.1);"
-                "   color: white;"
+                "   background-color: rgba(34,197,94,0.1);"
                 "}"
+                "   ActivityRow QLabel#header { color: rgba(34,197,94,1); }"
                 "   ActivityRow QLabel, ActivityRow QWidget {"
                 "   color: white;"
                 "   font-family: Arial;"
@@ -98,12 +99,12 @@ inline QString categoryStyle(Activity::ActivityCategory c) {
 
         case Activity::ActivityCategory::Appointment:
             return "ActivityRow {"
-                "   border: 2px solid rgba(124,58,237,1);" 
+                "   border: 2px solid rgba(34,211,238,1);"
                 "   border-radius: 6px;"
                 "   padding: 5px 10px;"                
-                "   background-color: rgba(124,58,237,0.1);" 
-                "   color: white;"
+                "   background-color: rgba(34,211,238,0.1);"
                 "}"
+                "   ActivityRow QLabel#header { color: rgba(34,211,238,1); }"
                 "   ActivityRow QLabel, ActivityRow QWidget {"
                 "   color: white;"
                 "   font-family: Arial;"
@@ -113,13 +114,14 @@ inline QString categoryStyle(Activity::ActivityCategory c) {
 
         case Activity::ActivityCategory::SimpleTask:
             return "ActivityRow {"
-                "   border: 2px solid rgba(124,58,237,1);"
+                "   border: 2px solid rgba(200, 70, 240, 1);"
                 "   border-radius: 6px;"
                 "   padding: 5px 10px;"
                 "   background-color: rgba(124,58,237, 0.1);"
                 "}"
+                "   ActivityRow QLabel#header { color: rgba(200, 70, 240, 1); }"
                 "   ActivityRow QLabel, ActivityRow QWidget {"
-                "   color: rgba(240, 229, 255, 0.9);"
+                "   color: white;"
                 "   font-family: Arial;"
                 "   background-color: transparent;"
                 "   font-weight: 700;"
@@ -138,8 +140,9 @@ inline QString categoryStyle(Activity::ActivityCategory c) {
                 "   padding: 5px 10px;"                
                 "   background-color: rgba(245,158,11,0.1);" 
                 "}"
+                "   ActivityRow QLabel#header { color: rgba(245,158,11,1); }"
                 "   ActivityRow QLabel, ActivityRow QWidget {"
-                "   color: #F59E0B;"
+                "   color: white;"
                 "   font-family: Arial;"
                 "   background-color: transparent;"
                 "   font-weight: 700;"

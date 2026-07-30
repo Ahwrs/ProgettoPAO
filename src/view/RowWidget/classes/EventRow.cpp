@@ -57,6 +57,7 @@ EventRow::EventRow(Activity* a, QWidget* p) : ActivityRow(a, p) {
         contentLayout->addLayout(linkLayout);
     }
 
+    contentLayout->addWidget(modify);
     contentLayout->addWidget(del);
     addContent(contentWidget);
 }
