@@ -9,14 +9,6 @@ int main(int argc, char *argv[]) {
     QLocale::setDefault(QLocale(QLocale::Italian, QLocale::Italy));
     
     ActivityManager manager;
-    // TEST TEMPORANEO — verifica che la catena Model->Controller->View funzioni
-    ActivityData testData;
-    testData.type = Activity::ActivityCategory::SimpleTask;
-    testData.title = "Prova end-to-end";
-    testData.description = "Se vedi questa riga, la catena funziona";
-    manager.create(testData);
-
-    
     MainWindow window;                          
     AppController controller(&manager, &window);
     

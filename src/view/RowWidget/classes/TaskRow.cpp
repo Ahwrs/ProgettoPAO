@@ -56,7 +56,7 @@ TaskRow::TaskRow(Activity* a, CompositeTask* parent, QWidget* p) : ActivityRow(a
 
         QHBoxLayout* buttonLayout = new QHBoxLayout();
         buttonLayout->addWidget(completeBtn);
-        buttonLayout->addWidget(modify);
+        if(!prtComposite) buttonLayout->addWidget(modify);
         buttonLayout->addWidget(del);
         contentLayout->addLayout(buttonLayout);
     }

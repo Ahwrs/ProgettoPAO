@@ -26,19 +26,21 @@ DayViewWidget::DayViewWidget(QWidget* p) : QWidget(p){
     box->addWidget(selector);
     box->addWidget(scrollArea);
 
-    Add = new QPushButton(this);   // parent = this, MAI aggiunto a "box" o altro layout
+    Add = new QPushButton(this);   
     Add->setFixedSize(40, 40);
+    Add->setIcon(QIcon(":/Add.svg"));
+    Add->setIconSize(QSize(20,20));
     Add->setStyleSheet(
         "QPushButton {"
         "   background-color: #7C3AED;"
         "   color: white;"
         "   border: none;"
-        "   border-radius: 20px;"   // metà della dimensione fissa = cerchio perfetto
+        "   border-radius: 20px;"
         "   font-size: 24pt;"
         "}"
         "QPushButton:hover { background-color: #6D28D9; }"
     );
-    Add->raise();   // garantisce che resti disegnato SOPRA scrollArea
+    Add->raise(); 
 
     connect(Add, &QPushButton::clicked, this, [this]{ emit newActivityRequested(); });
 

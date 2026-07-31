@@ -6,6 +6,7 @@
 AppController::AppController(ActivityManager* m, MainWindow* w, QObject* parent)
     : QObject(parent), manager(m), mainWindow(w)
 {
+    connect(mainWindow->getDayView(), &DayViewWidget::newActivityRequested, this, &AppController::onNewActivityRequested);
     connect(manager, &ActivityManager::activitiesChanged, this, &AppController::refreshActivityList);
     refreshActivityList();
 }
@@ -20,6 +21,7 @@ void AppController::refreshActivityList() {
 
     for (Activity* act : results) {
         ActivityRow* row = createRow(act);
+        connect(row, &ActivityRow::edit, this, &AppController::onEditRequested);
         connect(row, &ActivityRow::remove, this, [this](const QUuid& id){ manager->del(id); });
 
         if (TaskRow* taskRow = dynamic_cast<TaskRow*>(row)) {

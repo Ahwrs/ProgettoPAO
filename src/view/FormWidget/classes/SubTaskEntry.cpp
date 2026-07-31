@@ -7,7 +7,7 @@ SubTaskEntry::SubTaskEntry(Activity* act, QWidget* p) : QWidget(p){
 
     QVBoxLayout* box = new QVBoxLayout(this);
     TitleField = new QLineEdit();
-    DescField = new QTextEdit();
+    DescField = new QTextEdit(); DescField->setMaximumHeight(80);
 
     if(!act){
 
