@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>Trash.svg</file>
+        <file>Edit.svg</file>
         <file>Check.svg</file>
         <file>Down.svg</file>
         <file>Right.svg</file>
@@ -11,5 +12,13 @@
         <file>Time.svg</file>
         <file>Globe.svg</file>
         <file>Link.svg</file>
+        <file>Search.svg</file>
+        <file>Category.svg</file>
+        <file>Appointment.svg</file>
+        <file>Task.svg</file>
+        <file>Composite.svg</file>
+        <file>Event.svg</file>
+        <file>Events.svg</file>
+        <file>File.svg</file>
     </qresource>
 </RCC> 

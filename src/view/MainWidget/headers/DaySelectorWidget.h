@@ -7,6 +7,10 @@
 #include <QPushButton>
 #include <QLabel>
 
+////////////////
+// DaySelectorWidget
+////////////////
+
 class DaySelectorWidget : public QWidget {
     Q_OBJECT
 
@@ -14,8 +18,8 @@ private:
 
     QDate current;
     std::vector<QLabel*> days;
-    QPushButton* next;
-    QPushButton* last;
+    QPushButton* prevBtn;
+    QPushButton* nextBtn;
 
     void updateDayLabels();
 
@@ -23,10 +27,16 @@ public:
 
     DaySelectorWidget(QWidget* parent = nullptr);
 
+    QDate currentDate() const;
+    void goToDate(const QDate& date);
+
 public slots:
 
-    void refreshSelector(int day);
+    void refreshSelector(int step);
 
+signals:
+
+    void dateChanged(QDate newDate);
 };
 
 #endif

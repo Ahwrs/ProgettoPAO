@@ -5,25 +5,46 @@
 #include "ActivityManager.h"
 #include "MainWindow.h"
 
+////////////////
+// Controller principale
+////////////////
 class AppController : public QObject {
     Q_OBJECT
 
 private:
-
     ActivityManager* manager;
-    MainWindow* mainWindow;
+    MainWindow* window;
+    QString workFile;
 
-    void refreshActivityList();
-    void openForm(Activity* toEdit);   // nullptr = creazione
+    QDate curDay;
+    SearchCriteria lastSearch;
+    bool searchActive = false;
+
+    //////////////////
+    // Metodi interni
+    //////////////////
+    void refreshList();
+    void openForm(Activity* toEdit);
+    ActivityRow* buildRow(Activity* act);
+    void saveFile();
+    void saveAsFile();
 
 public:
-
     AppController(ActivityManager* m, MainWindow* w, QObject* parent = nullptr);
-    
+
 public slots:
 
-    void onNewActivityRequested();
-    void onEditRequested(const QUuid& id);
+    //////////////////
+    // Slot pubblici
+    //////////////////
+    void viewDetails(const QUuid& id);
+    void newActivity();
+    void editActivity(const QUuid& id);
+    void onSearchChanged(const SearchCriteria& c);
+    void openFile();
+    void saveRequested();
+    void saveShortcut();
+    void saveAsShortcut();
 };
 
 #endif

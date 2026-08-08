@@ -3,15 +3,20 @@
 
 #include "Activity.h"
 
-class Task : public Activity{
+////////////////
+// Task (classe astratta)
+////////////////
+
+class Task : public Activity {
 
 public:
 
+    // Costruttore
     Task(const QString& t, const QString& d);
     virtual ~Task();
 
+    // Metodo virtuale puro
     virtual bool isCompleted() const = 0;
 };
-
 
 #endif

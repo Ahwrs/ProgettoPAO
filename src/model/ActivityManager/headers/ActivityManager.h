@@ -11,24 +11,34 @@
 #include <QDate>
 #include <QTime>
 
-class ActivityManager : public QObject{
+////////////////
+// ActivityManager
+////////////////
+
+class ActivityManager : public QObject {
     Q_OBJECT
 
 private:
+
     std::vector<std::unique_ptr<Activity>> acty;
 
     std::unique_ptr<Activity> build(const ActivityData& data);
 
 public:
 
+    // Operazioni CRUD
     Activity* create(const ActivityData& data);
     void del(const QUuid& idx);
-    std::vector<Activity*> search(const ActivityFilter& filters) const;
     void edit(const QUuid& idx, const ActivityData& newData);
-    void completeTask(const QUuid& idx);
-    
+
+    // Ricerca
+    std::vector<Activity*> search(const ActivityFilter& filter) const;
     Activity* findByID(const QUuid& id) const;
 
+    // Completamento Task
+    void completeTask(const QUuid& idx);
+
+    // Persistenza
     bool save(const QString& path) const;
     bool load(const QString& path);
 

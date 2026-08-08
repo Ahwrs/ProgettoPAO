@@ -3,25 +3,29 @@
 
 #include "Activity.h"
 #include "ActivityUtilities.h"
+
 #include <QWidget>
 #include <QLineEdit>
 #include <QTextEdit>
+
+////////////////
+// SubTaskEntry
+////////////////
 
 class SubTaskEntry : public QWidget {
     Q_OBJECT
 
 private:
 
-    Activity* editable;
+    Activity* editable;      // Attività associata (nullptr = nuova)
     QLineEdit* TitleField;
     QTextEdit* DescField;
-    QUuid id;
+    QUuid id;                // ID dell'attività (vuoto se nuova)
 
 public:
 
     SubTaskEntry(Activity* act = nullptr, QWidget* parent = nullptr);
     SubTaskData collectData() const;
-
 };
 
 #endif

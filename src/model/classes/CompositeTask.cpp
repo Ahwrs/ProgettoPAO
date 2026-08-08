@@ -2,83 +2,85 @@
 #include <utility>
 #include <QJsonArray>
 
-CompositeTask::CompositeTask(const QString& title) : Task(title, QString()) {}
+////////////////
+// Costruttore
+////////////////
+
+CompositeTask::CompositeTask(const QString& title) : Task(title, QString()){}
+
+////////////////
+// Gestione SubTask
+////////////////
 
 void CompositeTask::addTask(std::unique_ptr<SimpleTask> task) {
     
-    if (task) SubTasks.push_back(std::move(task));
+    if (task) {
+        SubTasks.push_back(std::move(task));
+    }
 }
 
 bool CompositeTask::removeTask(const QUuid& idx) {
+    
+    auto it = std::find_if(SubTasks.begin(), SubTasks.end(), [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx; });
 
-    auto it = std::find_if(SubTasks.begin(), SubTasks.end(),
-        [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx; });
+    if (it == SubTasks.end()) {
+        return false;
+    }
     
-    if (it == SubTasks.end()) return false;
     SubTasks.erase(it);
-    
     return true;
 }
 
 bool CompositeTask::completeByID(const QUuid& idx) {
     
-    auto it = std::find_if(SubTasks.begin(), SubTasks.end(),
-        [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx; });
-    
-    if (it == SubTasks.end()) return false;
-    (*it)->setCompleted();
+    auto it = std::find_if(SubTasks.begin(), SubTasks.end(), [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx; });
 
+    if (it == SubTasks.end()) {
+        return false;
+    }
+
+    (*it)->setCompleted();
     return true;
 }
 
-double CompositeTask::getCompletionPercentage() const {
+const std::vector<std::unique_ptr<SimpleTask>>& CompositeTask::getSubTasks() const {
     
-    double completedCount = 0.0;
-    
-    for (const std::unique_ptr<SimpleTask>& t : SubTasks) {
-        
-        if (t->isCompleted()) completedCount++;
-    }
-    return SubTasks.size() <= 0 ? 0.0 : (completedCount / SubTasks.size()) * 100.0;
+    return SubTasks;
 }
-
-bool CompositeTask::isCompleted() const {return getCompletionPercentage() == 100.0; }
-
-QString CompositeTask::getInfo() const {
-    
-    QString result = "";
-    
-    if (SubTasks.empty()) {
-    
-        result += "(nessuna sotto-attività)\n";
-    
-    } else {
-    
-        result += "Sub-Task:\n";
-    
-        for (const std::unique_ptr<SimpleTask>& t : SubTasks) {
-            
-            
-            QString childInfo = t->getDescription();
-            result += "\n"+childInfo;           
-            
-        }
-    }
-    return result;
-}
-
-const std::vector<std::unique_ptr<SimpleTask>>& CompositeTask::getSubTasks() const { return SubTasks; }
 
 SimpleTask* CompositeTask::getSubTask(const QUuid& idx) const {
+    
+    auto it = std::find_if(SubTasks.begin(), SubTasks.end(), [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx;});
+    return (it != SubTasks.end()) ? it->get() : nullptr;
+}
 
-    auto it = std::find_if(SubTasks.begin(), SubTasks.end(), [&idx](const std::unique_ptr<SimpleTask>& st) { return st->getID() == idx; });
-    if(it != SubTasks.end()){
+////////////////
+// Info e stato
+////////////////
 
-        return (*it).get();
+double CompositeTask::getCompletionPercentage() const {
+    
+    if (SubTasks.empty()) {
+        return 0.0;
     }
 
-    return nullptr;
+    double completedCount = 0.0;
+    
+    for (const auto& t : SubTasks) {
+        
+        if (t->isCompleted()) {
+            completedCount++;
+        }
+    }
+    return (completedCount / SubTasks.size()) * 100.0;
 }
+
+bool CompositeTask::isCompleted() const { return getCompletionPercentage() == 100.0;}
+
+
+////////////////
+// Override metodi virtuali (Activity/Task)
+////////////////
 
 void CompositeTask::update(const ActivityData& newData) {
     
@@ -87,12 +89,11 @@ void CompositeTask::update(const ActivityData& newData) {
 }
 
 QJsonObject CompositeTask::toJSON() const {
-
+    
     QJsonObject obj = Activity::toJSON();
 
     QJsonArray arr;
-    for(const std::unique_ptr<SimpleTask>& s : SubTasks){
-
+    for (const auto& s : SubTasks) {
         arr.append(s->toJSON());
     }
 
@@ -102,30 +103,52 @@ QJsonObject CompositeTask::toJSON() const {
     return obj;
 }
 
-void CompositeTask::syncSubTasks(const std::vector<SubTaskData>& entries){
+void CompositeTask::accept(ActivityVisitor& v) {
+    
+    v.visit(*this);
+}
 
-    std::vector<QUuid> ids;
+Activity::ActivityCategory CompositeTask::getCategory() const {
+    
+    return Activity::ActivityCategory::CompositeTask;
+}
+
+////////////////
+// Metodi privati
+////////////////
+
+void CompositeTask::syncSubTasks(const std::vector<SubTaskData>& entries) {
+    
+    // Rimuovi i SubTask non presenti in entries
+    std::vector<QUuid> idsToRemove;
     for (const auto& s : SubTasks) {
-
-        auto it = std::find_if(entries.begin(), entries.end(),
-            [&](const SubTaskData& e){ return e.id == s->getID(); });
-
-        if (it == entries.end()) ids.push_back(s->getID());
+        
+        auto it = std::find_if(entries.begin(), entries.end(), [&](const SubTaskData& e) { return e.id == s->getID(); });
+        if (it == entries.end()) {
+            
+            idsToRemove.push_back(s->getID());
+        }
     }
-    for (const QUuid& id : ids) removeTask(id);
+    
+    for (const QUuid& id : idsToRemove) {
+        
+        removeTask(id);
+    }
 
+    // Aggiorna o aggiungi i SubTask da entries
     for (const auto& t : entries) {
-
+        
         if (!t.id.isNull()) {
-
+            
             if (SimpleTask* st = getSubTask(t.id)) {
+                
                 st->setTitle(t.title);
                 st->setDescription(t.description);
             }
-        } else {
+        } 
+        else {
+            
             addTask(std::make_unique<SimpleTask>(t.title, t.description));
         }
     }
 }
-
-Activity::ActivityCategory CompositeTask::getCategory() const {return Activity::ActivityCategory::CompositeTask;}

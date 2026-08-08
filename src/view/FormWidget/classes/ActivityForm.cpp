@@ -3,272 +3,421 @@
 #include "Appointment.h"
 #include "SimpleTask.h"
 #include "CompositeTask.h"
+#include "ErrorPopup.h"
+
 #include <QPushButton>
 
+////////////////
+// Costruttore
+////////////////
 
-ActivityForm::ActivityForm(Activity* toEdit, QWidget* parent) : QWidget(parent), editable(toEdit)
-{
-
+ActivityForm::ActivityForm(Activity* toEdit, QWidget* parent) : QWidget(parent), editable(toEdit) {
+    
     setAttribute(Qt::WA_StyledBackground, true);
+    setupUI();
+    setupConnections();
+    loadExistingData();
+    setStyleSheet(styleSheetString());
+}
 
-    QVBoxLayout* formLayout = new QVBoxLayout();
-    formLayout->setContentsMargins(24,20,24,20);
-    formLayout->setSpacing(12);
+////////////////
+// Setup dell'interfaccia
+////////////////
 
-    QWidget* formContainer = new QWidget();
-    formContainer->setLayout(formLayout);
+void ActivityForm::setupUI(){
+
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    mainLayout->setContentsMargins(24, 20, 24, 20);
+    mainLayout->setSpacing(12);
+
+    QWidget* container = new QWidget();
+    container->setLayout(mainLayout);
 
     QScrollArea* scrollArea = new QScrollArea(this);
     scrollArea->setWidgetResizable(true);
     scrollArea->setFrameShape(QFrame::NoFrame);
-    scrollArea->setWidget(formContainer);
+    scrollArea->setWidget(container);
 
-    QVBoxLayout* mainLayout = new QVBoxLayout(this);
-    mainLayout->setContentsMargins(0,0,0,0);
-    mainLayout->addWidget(scrollArea);
+    QVBoxLayout* rootLayout = new QVBoxLayout(this);
+    rootLayout->setContentsMargins(0, 0, 0, 0);
+    rootLayout->addWidget(scrollArea);
 
-    QLabel* mainLabel = new QLabel("Nuova Attività");
-    mainLabel->setFixedHeight(40);
-    mainLabel->setObjectName("mainLabel");
-    formLayout->addWidget(mainLabel, Qt::AlignHCenter);
+    // Intestazione
+    QLabel* headerLabel = new QLabel("Nuova Attività");
+    headerLabel->setFixedHeight(40);
+    headerLabel->setObjectName("mainLabel");
+    mainLayout->addWidget(headerLabel, Qt::AlignHCenter);
 
-    //----------------------------------
     // Titolo
-    //----------------------------------
-
     TitleField = new QLineEdit();
-    QLabel* titleLabel = new QLabel("Titolo");
-    titleLabel->setFixedHeight(40);
-
+    TitleLabel = new QLabel("Titolo");
+    TitleLabel->setFixedHeight(30);
     TitleField->setPlaceholderText("Titolo attività...");
     TitleField->setContextMenuPolicy(Qt::NoContextMenu);
-    formLayout->addWidget(titleLabel);
-    formLayout->addWidget(TitleField);
+    mainLayout->addWidget(TitleLabel);
+    mainLayout->addWidget(TitleField);
 
-    //----------------------------------
     // Descrizione
-    //----------------------------------
     DescField = new QTextEdit();
-    QLabel* DescLabel = new QLabel("Descrizione");
-    DescLabel->setFixedHeight(40);
+    DescLabel = new QLabel("Descrizione");
+    DescLabel->setFixedHeight(30);
     DescField->setPlaceholderText("Descrizione attività...");
     DescField->setContextMenuPolicy(Qt::NoContextMenu);
-    DescField->setFixedHeight(50);
+    DescField->setFixedHeight(60);
     DescField->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    formLayout->addWidget(DescLabel);
-    formLayout->addWidget(DescField);
+    mainLayout->addWidget(DescLabel);
+    mainLayout->addWidget(DescField);
 
+    // Modalità (Event / Task)
+    TaskMode = new QCheckBox("Event / Task");
+    mainLayout->addWidget(TaskMode);
 
-    //----------------------------------
-    // Tipo attività
-    //----------------------------------
-
-    isAllDay = new QCheckBox("Event / Task");
-    formLayout->addWidget(isAllDay);
-
-    //----------------------------------
-    // EVENT WIDGET
-    //----------------------------------
-
-    EventWidget = new QWidget();
-
-    QVBoxLayout* eventLayout = new QVBoxLayout(EventWidget);
+    ////////////////////////////////
+    // Pannello Event (visibile in modalità Event)
+    ////////////////////////////////
     
-    QHBoxLayout* dateLayout = new QHBoxLayout();
+    EventPanel = new QWidget();
+    QVBoxLayout* eventLayout = new QVBoxLayout(EventPanel);
+
+    // Data
+    QHBoxLayout* dateRow = new QHBoxLayout();
+    QLabel* dateIcon = new QLabel();
+    dateIcon->setPixmap(QIcon(":/Date.svg").pixmap(16, 16));
+    dateRow->addWidget(dateIcon);
+    dateRow->addWidget(new QLabel("Data"));
+    dateRow->addStretch();
     DateField = new QDateEdit();
-    QLabel* DIcon = new QLabel();
-    DIcon->setPixmap(QIcon(":/Date.svg").pixmap(16,16));
-    dateLayout->addWidget(DIcon);
-    dateLayout->addWidget(new QLabel("Data"));
-    dateLayout->addStretch();
     DateField->setDisplayFormat("dd/MM/yyyy");
-    dateLayout->addWidget(DateField);
-    
-    QHBoxLayout* TimeLayout = new QHBoxLayout();
+    DateField->setDate(QDate::currentDate());
+    dateRow->addWidget(DateField);
+    eventLayout->addLayout(dateRow);
+
+    // Ora inizio / fine
+    QHBoxLayout* timeRow = new QHBoxLayout();
+    QLabel* timeIcon = new QLabel();
+    timeIcon->setPixmap(QIcon(":/Time.svg").pixmap(16, 16));
+    timeRow->addWidget(timeIcon);
+    timeRow->addWidget(new QLabel("Inizio - Fine"));
+    timeRow->addStretch();
     StartField = new QTimeEdit();
-    EndField = new QTimeEdit();
     StartField->setDisplayFormat("HH:mm");
+    StartField->setTime(QTime::currentTime());
+    timeRow->addWidget(StartField);
+    timeRow->addSpacing(10);
+    EndField = new QTimeEdit();
     EndField->setDisplayFormat("HH:mm");
-    
-    QLabel* TIcon = new QLabel();
-    TIcon->setPixmap(QIcon(":/Time.svg").pixmap(16,16));
-    TimeLayout->addWidget(TIcon);
-    TimeLayout->addWidget(new QLabel("Inizio - Fine"));
-    TimeLayout->addStretch();
-    TimeLayout->addWidget(StartField);
-    TimeLayout->addSpacing(10);
-    TimeLayout->addWidget(EndField);
+    EndField->setTime(QTime::currentTime().addSecs(3600));
+    timeRow->addWidget(EndField);
+    eventLayout->addLayout(timeRow);
 
-    eventLayout->addLayout(dateLayout);
-    eventLayout->addLayout(TimeLayout);
+    // Link (per Appointment)
+    QHBoxLayout* linkRow = new QHBoxLayout();
+    QLabel* linkIcon = new QLabel();
+    linkIcon->setPixmap(QIcon(":/Link.svg").pixmap(16, 16));
 
-    //----------------------------------
-    // EVENT WIDGET -- LINK
-    //----------------------------------
-    
-    QHBoxLayout* row = new QHBoxLayout();
+    QWidget* linkContainer = new QWidget();
+    linkContainer->setObjectName("linkWidget");
+    QHBoxLayout* linkInnerLayout = new QHBoxLayout(linkContainer);
+    linkInnerLayout->setContentsMargins(0, 0, 0, 0);
+    linkInnerLayout->setSpacing(0);
 
-    QLabel* icon = new QLabel();
-    icon->setPixmap(QIcon(":/Link.svg").pixmap(16,16));
-
-    QWidget* linkWidget = new QWidget();
-    linkWidget->setObjectName("linkWidget");
-
-    QHBoxLayout* linkLayout = new QHBoxLayout(linkWidget);
-    linkLayout->setContentsMargins(0,0,0,0);
-    linkLayout->setSpacing(0);
-
-    QLabel* prefix = new QLabel("https://");
-    prefix->setObjectName("linkLabel");
+    QLabel* linkPrefix = new QLabel("https://");
+    linkPrefix->setObjectName("linkLabel");
 
     LinkField = new QLineEdit();
     LinkField->setPlaceholderText("esempio.com");
     LinkField->setFrame(false);
     LinkField->setContextMenuPolicy(Qt::NoContextMenu);
 
-    linkLayout->addWidget(prefix);
-    linkLayout->addWidget(LinkField);
-    
+    linkInnerLayout->addWidget(linkPrefix);
+    linkInnerLayout->addWidget(LinkField);
 
-    isOnlineField = new QCheckBox("Evento online");
+    OnlineCheck = new QCheckBox("Evento online");
 
-    row->addWidget(icon);
-    row->addWidget(linkWidget, 1);
-    row->addSpacing(10);
-    row->addWidget(isOnlineField);
+    linkRow->addWidget(linkIcon);
+    linkRow->addWidget(linkContainer, 1);
+    linkRow->addSpacing(10);
+    linkRow->addWidget(OnlineCheck);
 
-    eventLayout->addLayout(row);
-    formLayout->addWidget(EventWidget);
+    eventLayout->addLayout(linkRow);
+    mainLayout->addWidget(EventPanel);
 
+    //////////////////////////////////
+    // Pannello Task (visibile in modalità Task)
+    //////////////////////////////////
+    TaskPanel = new QWidget();
+    TaskPanel->setObjectName("TaskWidget");
 
-
-    //----------------------------------
-    // TASK WIDGET
-    //----------------------------------
-    TaskWidget = new QWidget();
-
-    QVBoxLayout* taskLayout = new QVBoxLayout(TaskWidget);
-    taskLayout->setContentsMargins(0,0,0,0);
+    QVBoxLayout* taskLayout = new QVBoxLayout(TaskPanel);
+    taskLayout->setContentsMargins(10, 10, 10, 15);
     taskLayout->setSpacing(10);
 
-    taskLayout->addWidget(new QLabel("Sub Tasks"));
+    QLabel* subTaskLabel = new QLabel("Sub Tasks");
+    subTaskLabel->setFixedHeight(20);
+    taskLayout->addWidget(subTaskLabel, 0, Qt::AlignHCenter | Qt::AlignTop);
 
-    SubTasks = new QVBoxLayout();
-    SubTasks->setContentsMargins(0,0,0,0);
-    SubTasks->setSpacing(8);
-    SubTasks->setAlignment(Qt::AlignTop);
+    SubTaskLayout = new QVBoxLayout();
+    SubTaskLayout->setContentsMargins(0, 0, 0, 0);
+    SubTaskLayout->setSpacing(8);
+    SubTaskLayout->setAlignment(Qt::AlignTop);
+    taskLayout->addLayout(SubTaskLayout);
 
-    taskLayout->addLayout(SubTasks);
-    QPushButton* addTaskButton = new QPushButton("Aggiungi sottotask");
-    QPushButton* removeTaskButton = new QPushButton("Rimuovi sottotask");    
+    addSubBtn = new QPushButton("Aggiungi sottotask");
+    addSubBtn->setObjectName("Add");
+    removeSubBtn = new QPushButton("Rimuovi sottotask");
+    removeSubBtn->setObjectName("Remove");
 
-    taskLayout->addWidget(addTaskButton);
-    taskLayout->addWidget(removeTaskButton);
-    TaskWidget->hide();
-    formLayout->addWidget(TaskWidget);
+    QHBoxLayout* subBtnLayout = new QHBoxLayout();
+    subBtnLayout->addWidget(addSubBtn);
+    subBtnLayout->addWidget(removeSubBtn);
+    taskLayout->addLayout(subBtnLayout);
 
-    //----------------------------------
-    // BOTTONI
-    //----------------------------------
+    TaskPanel->hide();
+    mainLayout->addWidget(TaskPanel);
 
-    QPushButton* saveButton = new QPushButton("Salva");
-    QPushButton* cancelButton = new QPushButton("Annulla");
-    formLayout->addWidget(saveButton);
-    formLayout->addWidget(cancelButton);
+    //////////////////////////////////
+    // Pulsanti
+    //////////////////////////////////
+    saveBtn = new QPushButton("Salva");
+    saveBtn->setObjectName("SButton");
+    cancelBtn = new QPushButton("Annulla");
+    cancelBtn->setObjectName("CButton");
 
-    //----------------------------------
-    // Connessioni
-    //----------------------------------
+    mainLayout->addWidget(saveBtn);
+    mainLayout->addWidget(cancelBtn);
+}
 
+////////////////
+// Connessioni segnali/slot
+////////////////
 
-    connect(isAllDay, &QCheckBox::toggled, this, [this](bool checked) {
-        
-        EventWidget->setVisible(!checked);
-        TaskWidget->setVisible(checked);
-        DescField->setVisible(!(checked && SubTasks->count() > 0));
+void ActivityForm::setupConnections(){
+
+    // Commutazione tra modalità Event e Task
+    connect(TaskMode, &QCheckBox::toggled, this, [this](bool isTask) {
+
+        EventPanel->setVisible(!isTask);
+        TaskPanel->setVisible(isTask);
+
+        bool showDesc = !(isTask && SubTaskLayout->count() > 0);
+        DescField->setVisible(showDesc);
+        if (!DescField->isVisible()) {
+            DescField->setText("");
+        }
+        DescLabel->setVisible(showDesc);
     });
 
-    connect(addTaskButton, &QPushButton::clicked, this, [this]() {
+    // Aggiungi sottotask
+    connect(addSubBtn, &QPushButton::clicked, this, [this]() {
 
         SubTaskEntry* entry = new SubTaskEntry();
-        SubTasks->addWidget(entry);
-        DescField->setVisible(SubTasks->count() == 0);
-    });
-    connect(removeTaskButton, &QPushButton::clicked, this, [this]() {
+        SubTaskLayout->addWidget(entry);
 
-        QLayoutItem* item = SubTasks->takeAt(SubTasks->count() - 1);
-        if (item && item->widget()) item->widget()->deleteLater();
+        bool showDesc = (SubTaskLayout->count() == 0);
+        DescField->setVisible(showDesc);
+        if (!DescField->isVisible()) {
+            DescField->setText("");
+        }
+        DescLabel->setVisible(showDesc);
+    });
+
+    // Rimuovi sottotask (ultimo)
+    connect(removeSubBtn, &QPushButton::clicked, this, [this]() {
+
+        QLayoutItem* item = SubTaskLayout->takeAt(SubTaskLayout->count() - 1);
+        if (item && item->widget()) {
+            item->widget()->deleteLater();
+        }
         delete item;
-        if(SubTasks->count() == 0) DescField->setVisible(true);
+
+        bool showDesc = (SubTaskLayout->count() == 0);
+        DescField->setVisible(showDesc);
+        DescLabel->setVisible(showDesc);
     });
 
-    connect(saveButton, &QPushButton::clicked, this, [this]() {
+    // Salva
+    connect(saveBtn, &QPushButton::clicked, this, [this]() {
 
         ActivityData data = collectData();
 
-        if(editable) emit submitEdit(editable->getID(), data);
-        else emit submitCreate(data);
+        // Validazione: titolo obbligatorio
+        if (data.title.trimmed().isEmpty()) {
 
+            ErrorPopup* error = new ErrorPopup("Errore. \nTitolo obbligatorio per l'inserimento.");
+            error->showCenteredTop(TitleField, 30);
+            return;
+        }
+
+        // Validazione SubTask: se ha descrizione deve avere titolo
+        if (TaskMode->isChecked()) {
+
+            for (int i = 0; i < SubTaskLayout->count(); ++i) {
+
+                auto* entry = qobject_cast<SubTaskEntry*>(SubTaskLayout->itemAt(i)->widget());
+                if (!entry) continue;
+
+                SubTaskData sd = entry->collectData();
+                if (sd.title.trimmed().isEmpty() && !sd.description.trimmed().isEmpty()) {
+
+                    ErrorPopup* error = new ErrorPopup("Errore. \nOgni sotto-attività con una descrizione deve avere anche un titolo.");
+                    error->showCenteredTop(TitleField, 30);
+                    return;
+                }
+            }
+        }
+
+        // Validazione Event/Appointment
+        if (data.type == Activity::ActivityCategory::Event ||
+            data.type == Activity::ActivityCategory::Appointment) {
+
+            if (data.start >= data.end) {
+
+                ErrorPopup* error = new ErrorPopup("Errore. \nL'orario di inizio deve precedere l'orario di fine.");
+                error->showCenteredTop(TitleField, 30);
+                return;
+            }
+            if (data.isOnline && data.link.isEmpty()) {
+
+                ErrorPopup* error = new ErrorPopup("Errore. \nLink necessario.");
+                error->showCenteredTop(TitleField, 30);
+                return;
+            }
+        }
+
+        // Emissione segnale
+        if (editable) {
+
+            emit submitEdit(editable->getID(), data);
+
+        } else {
+
+            emit submitCreate(data);
+        }
     });
 
-    connect(cancelButton, &QPushButton::clicked, this, [this](){
+    // Annulla
+    connect(cancelBtn, &QPushButton::clicked, this, [this]() {
 
         emit cancelled();
     });
+}
 
+////////////////
+// Caricamento dati in modifica
+////////////////
 
-    //----------------------------------
-    // Caricamento dati
-    //----------------------------------
+void ActivityForm::loadExistingData()
+{
+    if (!editable) return;
 
-    if(editable != nullptr)
-    {
+    TitleField->setText(editable->getTitle());
 
-        TitleField->setText( editable->getTitle());
+    bool isTask = (dynamic_cast<Task*>(editable) != nullptr);
+    TaskMode->setChecked(isTask);
+    TaskMode->setEnabled(false);
 
-        bool task = dynamic_cast<Task*>(editable) != nullptr;
-        isAllDay->setChecked(task);
-        isAllDay->setEnabled(false);
+    if (Event* ev = dynamic_cast<Event*>(editable)) {
 
-        if(Event* e = dynamic_cast<Event*>(editable)) {
+        DescField->setText(ev->getDescription());
+        DateField->setDate(ev->getDate());
+        StartField->setTime(ev->getStartTime());
+        EndField->setTime(ev->getEndTime());
 
-            DescField->setText(e->getDescription());
-            DateField->setDate(e->getDate());
+        if (Appointment* ap = dynamic_cast<Appointment*>(ev)) {
 
-            StartField->setTime(e->getStartTime());
-            EndField->setTime(e->getEndTime());
+            LinkField->setText(ap->getLink());
+            OnlineCheck->setChecked(ap->getIsOnline());
+        } else {
 
-            if(Appointment* ap = dynamic_cast<Appointment*>(e)){
-                
-                LinkField->setText(ap->getLink());
-                isOnlineField->setChecked(ap->getIsOnline());
+            LinkField->setReadOnly(true);
+            OnlineCheck->setEnabled(false);
+        }
+    } else if (SimpleTask* st = dynamic_cast<SimpleTask*>(editable)) {
+
+        DescField->setText(st->getDescription());
+        addSubBtn->setVisible(false);
+        removeSubBtn->setVisible(false);
+
+        QVBoxLayout* taskLayout = qobject_cast<QVBoxLayout*>(TaskPanel->layout());
+
+        if (taskLayout) {
+
+            QLabel* infoLabel = new QLabel("Impossibile aggiungere Sub-Tasks");
+            infoLabel->setAlignment(Qt::AlignHCenter);
+            taskLayout->addWidget(infoLabel, 0, Qt::AlignHCenter);
+        }
+    } else if (CompositeTask* ct = dynamic_cast<CompositeTask*>(editable)) {
+
+        DescField->hide();
+
+        for (const auto& sub : ct->getSubTasks()) {
+
+            SubTaskEntry* entry = new SubTaskEntry(sub.get());
+            SubTaskLayout->addWidget(entry);
+        }
+    }
+}
+
+////////////////
+// Raccolta dati dal form
+////////////////
+
+ActivityData ActivityForm::collectData() const
+{
+    ActivityData data;
+
+    data.title = TitleField->text().trimmed();
+    data.description = DescField->toPlainText();
+
+    if (TaskMode->isChecked()) {
+
+        // Modalità Task
+        for (int i = 0; i < SubTaskLayout->count(); ++i) {
+
+            QWidget* w = SubTaskLayout->itemAt(i)->widget();
+            auto* entry = qobject_cast<SubTaskEntry*>(w);
+            if (!entry) continue;
+
+            SubTaskData sd = entry->collectData();
+            if (!sd.title.trimmed().isEmpty()) {
+
+                data.subTasks.push_back(sd);
             }
         }
-        else if(SimpleTask* st = dynamic_cast<SimpleTask*>(editable)){
 
-            DescField->setText(st->getDescription());
-        }
-        else if(CompositeTask* ct = dynamic_cast<CompositeTask*>(editable)){
+        data.type = data.subTasks.empty()
+                    ? Activity::ActivityCategory::SimpleTask
+                    : Activity::ActivityCategory::CompositeTask;
+    } else {
 
-            for(auto& sub : ct->getSubTasks()){
-                
-                DescField->hide();
-                SubTaskEntry* entry = new SubTaskEntry(sub.get());
-                SubTasks->addWidget(entry);
-            }
-        }
+        // Modalità Event
+        data.date = DateField->date();
+        data.start = StartField->time();
+        data.end = EndField->time();
+        data.link = LinkField->text();
+        data.isOnline = OnlineCheck->isChecked();
 
+        data.type = data.link.isEmpty()
+                    ? Activity::ActivityCategory::Event
+                    : Activity::ActivityCategory::Appointment;
     }
 
-    this->setStyleSheet(
+    return data;
+}
 
+////////////////
+// QSS
+////////////////
+
+QString ActivityForm::styleSheetString() const
+{
+    return
         "QWidget {"
         "   background-color: transparent;"
         "   color: #E8E8E8;"
         "   font-family: Segoe UI;"
         "   font-size: 10pt;"
         "}"
-
         "#mainLabel {"
         "   border-bottom: 1px solid gray;"
         "   padding-bottom: 5px;"
@@ -276,43 +425,37 @@ ActivityForm::ActivityForm(Activity* toEdit, QWidget* parent) : QWidget(parent),
         "   font-size: 20pt;"
         "   font-weight: 700;"
         "}"
-
         "#linkWidget {"
         "    background: #3A3F4B;"
         "    border: 1px solid #3A3F4B;"
         "    border-radius: 8px;"
         "    padding: 8px 0px;"
         "}"
-
         "#linkLabel {"
         "    background: transparent;"
         "    color: #BDBDBD;"
         "    margin-right: 5px;"
         "    margin-left: 10px;"
         "}"
-
         "QLabel {"
         "   color: #E5E5E5;"
         "   font-weight: 600;"
         "}"
-
-        "QLineEdit,"
-        "QTextEdit {"
+        "QLineEdit, QTextEdit {"
         "   background-color: #171A21;"
         "   color: white;"
         "   border: 1px solid #3A3F4B;"
         "   border-radius: 8px;"
         "   padding: 8px 12px;"
         "}"
-
-        "QLineEdit:focus,"
-        "QTextEdit:focus {"
+        "QLineEdit:focus, QTextEdit:focus {"
         "   border: 1px solid #8B5CF6;"
         "}"
-        
-        "QDateEdit,"
-        "QTimeEdit"
-        "{"
+        "QLineEdit:read-only {"
+        "    color: #555B6852;"
+        "    background-color: #171A21;"
+        "}"
+        "QDateEdit, QTimeEdit {"
         "    background-color: #171A21;"
         "    color: #F2F2F2;"
         "    border: 1px solid #3A3F4B;"
@@ -321,160 +464,99 @@ ActivityForm::ActivityForm(Activity* toEdit, QWidget* parent) : QWidget(parent),
         "    padding-right: 0px;"
         "    min-height: 32px;"
         "}"
-
-        "QDateEdit:hover,"
-        "QTimeEdit:hover"
-        "{"
+        "QDateEdit:hover, QTimeEdit:hover {"
         "    border-color: #6B7280;"
         "}"
-
-        "QDateEdit:focus,"
-        "QTimeEdit:focus"
-        "{"
+        "QDateEdit:focus, QTimeEdit:focus {"
         "    border: 1px solid #8B5CF6;"
         "}"
-
-       "QDateEdit::up-button,"
-        "QTimeEdit::up-button"
-        "{"
+        "QDateEdit::up-button, QTimeEdit::up-button {"
         "    subcontrol-position: top right;"
         "    width: 20px;"
         "    height: 20px;"
         "    margin: 0px 10px -10px 0px;"
         "    background: transparent;"
         "}"
-
-        "QDateEdit::down-button,"
-        "QTimeEdit::down-button"
-        "{"
+        "QDateEdit::down-button, QTimeEdit::down-button {"
         "    subcontrol-position: bottom right;"
         "    width: 20px;"
         "    height: 20px;"
         "    margin: -10px 10px 0px 0px;"
         "    background: transparent;"
         "}"
-
-        "QDateEdit::up-arrow,"
-        "QTimeEdit::up-arrow"
-        "{"
+        "QDateEdit::up-arrow, QTimeEdit::up-arrow {"
         "    image: url(:/Up.svg);"
-
         "    width:15px;"
         "    height:15px;"
         "}"
-
-        "QDateEdit::down-arrow,"
-        "QTimeEdit::down-arrow {"
-
+        "QDateEdit::down-arrow, QTimeEdit::down-arrow {"
         "    image: url(:/Down.svg);"
         "    width:15px;"
         "    height:15px;"
         "}"
-        
         "QCheckBox {"
         "   spacing:8px;"
         "   color:#E5E5E5;"
         "}"
-
         "QCheckBox::indicator {"
         "   width:17px;"
         "   height:17px;"
         "   border-radius:5px;"
         "   border:1px solid #555B68;"
-        "   background:#171A21;"
+        "   background-color: #171A21;"
         "}"
-
         "QCheckBox::indicator:hover {"
         "   border-color:#8B5CF6;"
         "}"
-
         "QCheckBox::indicator:checked {"
         "   background:#8B5CF6;"
         "   border-color:#8B5CF6;"
         "}"
-
-        "QPushButton {"
-        "   background:#171A21;"
-        "   color:white;"
-        "   border-radius:8px;"
-        "   border:1px solid #343946;"
-        "   padding:10px;"
-        "   font-weight:600;"
+        "QCheckBox:disabled {"
+        "   color: #555B6852;"
         "}"
-
-        "QPushButton:hover {"
-        "   background:#222631;"
-        "   border-color:#8B5CF6;"
+        "QCheckBox::indicator:disabled {"
+        "   border-color: #555B6852;"
+        "   background-color: #171A2152;"
         "}"
-
-        "QPushButton:pressed {"
-        "   background:#111318;"
+        "#TaskWidget {"
+        "   border: 1px solid #3A3F4B;"
+        "   border-radius: 6px;"
         "}"
-
-        "QPushButton[text='Salva'] {"
-        "   background:#7C3AED;"
-        "   border:none;"
+        "#SButton, #Add {"
+        "   border: 2px solid #2563EB;"
+        "   border-radius: 6px;"
+        "   padding: 5px 10px;"
+        "   color: #2563EB;"
+        "   background-color: transparent;"
+        "   margin-top: 10%;"
+        "   font-weight: 700;"
         "}"
-
-        "QPushButton[text='Salva']:hover {"
-        "   background:#8B5CF6;"
+        "#Add { margin-top: 0px; }"
+        "#SButton:pressed, #SButton:hover,"
+        "#Add:pressed, #Add:hover {"
+        "   border: 2px solid #1D4ED8;"
+        "   background-color: rgba(255, 255, 255, 25);"
         "}"
-
-
+        "#Remove, #CButton {"
+        "   border: 2px solid #D32F2F;"
+        "   border-radius: 6px;"
+        "   padding: 5px 10px;"
+        "   color: #D32F2F;"
+        "   background-color: transparent;"
+        "   font-weight: 700;"
+        "}"
+        "#Remove:pressed, #Remove:hover,"
+        "#CButton:pressed, #CButton:hover {"
+        "   border: 2px solid red;"
+        "   background-color: rgba(255, 255, 255, 25);"
+        "}"
         "QScrollArea {"
-        "   background:transparent;"
-        "   border:none;"
+        "   background: transparent;"
+        "   border: none;"
         "}"
-
         "QScrollBar:vertical {"
-        "   background:transparent;"
-        "   width:0px;"
-        "}"
-
-);
-
-}
-
-ActivityData ActivityForm::collectData() const{
-
-    ActivityData data;
-
-    
-    data.description = DescField->toPlainText();
-    data.title = TitleField->text().trimmed();
-    if (data.title.isEmpty()) {
-        // QMessageBox::warning(const_cast<ActivityForm*>(this), "Errore", "Il titolo è obbligatorio.");
-    }
-    if(isAllDay->isChecked()){
-
-        for(int i=0; i<SubTasks->count(); ++i){
-
-            QWidget* w = SubTasks->itemAt(i)->widget();
-            auto* entry = qobject_cast<SubTaskEntry*>(w);
-
-            if(!entry) continue;
-            SubTaskData sd = entry->collectData();
-
-            if(!sd.title.trimmed().isEmpty()) data.subTasks.push_back(sd);
-        }
-
-        data.type = data.subTasks.empty()
-                    ? Activity::ActivityCategory::SimpleTask
-                    : Activity::ActivityCategory::CompositeTask;
-
-    }
-    else
-    {
-
-        data.date = DateField->date();
-        data.start = StartField->time();
-        data.end = EndField->time();
-        data.link = LinkField->text();
-        data.isOnline = isOnlineField->isChecked();
-        data.type = data.link.isEmpty()
-                    ? Activity::ActivityCategory::Event
-                    : Activity::ActivityCategory::Appointment;
-    }
-
-    return data;
+        "   background: transparent;"
+        "   width: 0px;"
+        "}";
 }

@@ -7,30 +7,41 @@
 #include <memory>
 #include <vector>
 
+////////////////
+// CompositeTask
+////////////////
+
 class CompositeTask : public Task {
+
 private:
 
     std::vector<std::unique_ptr<SimpleTask>> SubTasks;
+
     void syncSubTasks(const std::vector<SubTaskData>& entries);
 
 public:
+
+    // Costruttore/Distruttore
     CompositeTask(const QString& title);
     ~CompositeTask() override = default;
 
+    // Gestione SubTask
     void addTask(std::unique_ptr<SimpleTask> task);
     bool removeTask(const QUuid& idx);
+    bool completeByID(const QUuid& idx);
 
     const std::vector<std::unique_ptr<SimpleTask>>& getSubTasks() const;
     SimpleTask* getSubTask(const QUuid& idx) const;
 
-    virtual void update(const ActivityData& newData) override;
-    virtual ActivityCategory getCategory() const override;
-    virtual QJsonObject toJSON() const override;
-    
-    bool completeByID(const QUuid& idx);
+    // Info e stato
     double getCompletionPercentage() const;
     bool isCompleted() const override;
-    QString getInfo() const;
+
+    // Override metodi virtuali (Activity/Task)
+    void update(const ActivityData& newData) override;
+    QJsonObject toJSON() const override;
+    void accept(ActivityVisitor& v) override;
+    ActivityCategory getCategory() const override;
 };
 
 #endif

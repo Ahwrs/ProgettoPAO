@@ -3,15 +3,22 @@
 #include "AppController.h"
 #include <QApplication>
 
-int main(int argc, char *argv[]) {
-    
+////////////////
+// Funzione principale
+////////////////
+
+int main(int argc, char *argv[])
+{
+    // Imposta il locale italiano
     QApplication app(argc, argv);
     QLocale::setDefault(QLocale(QLocale::Italian, QLocale::Italy));
-    
+
+    // Inizializza Model, View e Controller
     ActivityManager manager;
-    MainWindow window;                          
+    MainWindow window;
     AppController controller(&manager, &window);
-    
-    window.show();    
+
+    // Mostra la finestra principale e avvia il loop eventi
+    window.show();
     return app.exec();
 }

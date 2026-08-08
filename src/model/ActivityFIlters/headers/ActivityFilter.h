@@ -3,6 +3,10 @@
 
 #include "Activity.h"
 
+////////////////
+// ActivityFilter (interfaccia)
+////////////////
+
 class ActivityFilter {
 public:
     virtual ~ActivityFilter() = default;

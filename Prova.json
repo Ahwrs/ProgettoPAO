@@ -1,0 +1,33 @@
+[
+    {
+        "CategoryType": "Evento",
+        "Date": "2026-08-07",
+        "Description": "",
+        "EndTime": "12:07:37",
+        "ID": "{79d25e34-0e7b-4172-a9a6-7b996bc9439e}",
+        "StartTime": "11:07:37",
+        "Title": "Maddalena"
+    },
+    {
+        "CategoryType": "Appuntamento",
+        "Date": "2026-08-07",
+        "Description": "",
+        "EndTime": "12:07:40",
+        "ID": "{2c061a37-0dd0-44c1-84d8-8c4f11883d49}",
+        "Link": "https://888",
+        "Online": false,
+        "StartTime": "11:07:40",
+        "Title": "8"
+    },
+    {
+        "CategoryType": "Appuntamento",
+        "Date": "2026-08-08",
+        "Description": "Cena alle Querce a magnaaaa pesce seeee",
+        "EndTime": "23:00:41",
+        "ID": "{f507e0de-4883-4780-957a-cf66fd36f2ca}",
+        "Link": "https://Querce.com",
+        "Online": false,
+        "StartTime": "20:00:41",
+        "Title": "Cena"
+    }
+]

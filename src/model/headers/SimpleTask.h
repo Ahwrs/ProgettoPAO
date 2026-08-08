@@ -3,21 +3,27 @@
 
 #include "Task.h"
 
-class SimpleTask : public Task{
+////////////////
+// SimpleTask
+////////////////
+
+class SimpleTask : public Task {
 
 private:
-
     bool TaskCompleted;
 
 public:
 
+    // Costruttore
     SimpleTask(const QString& t, const QString& d, bool Tc = false);
     ~SimpleTask() = default;
 
-    virtual ActivityCategory getCategory() const override;
-    virtual QJsonObject toJSON() const override;
-    
+    // Override metodi virtuali
+    void accept(ActivityVisitor& v) override;
+    QJsonObject toJSON() const override;
+    ActivityCategory getCategory() const override;
 
+    // Stato completamento
     bool isCompleted() const override;
     void setCompleted();
 };

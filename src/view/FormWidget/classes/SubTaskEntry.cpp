@@ -1,37 +1,44 @@
 #include "SubTaskEntry.h"
 #include <QBoxLayout>
 
-SubTaskEntry::SubTaskEntry(Activity* act, QWidget* p) : QWidget(p){
+////////////////
+// Costruttore
+////////////////
 
-    editable = act;
+SubTaskEntry::SubTaskEntry(Activity* act, QWidget* parent) : QWidget(parent), editable(act){
 
-    QVBoxLayout* box = new QVBoxLayout(this);
+    QVBoxLayout* layout = new QVBoxLayout(this);
+
     TitleField = new QLineEdit();
-    DescField = new QTextEdit(); DescField->setMaximumHeight(80);
+    DescField = new QTextEdit();
+    DescField->setMaximumHeight(80);
 
-    if(!act){
+    if (!act) {
 
         id = QUuid();
         TitleField->setPlaceholderText("Titolo della Sotto-Attività");
         DescField->setPlaceholderText("Descrizione della Sotto-Attività");
-    }
-    else{
+
+    } else {
 
         id = act->getID();
         TitleField->setText(act->getTitle());
         DescField->setText(act->getDescription());
     }
 
-    box->addWidget(TitleField);
-    box->addWidget(DescField);
+    layout->addWidget(TitleField);
+    layout->addWidget(DescField);
 }
 
-SubTaskData SubTaskEntry::collectData() const{
+////////////////
+// Raccoglitore dati
+////////////////
 
+SubTaskData SubTaskEntry::collectData() const {
+    
     SubTaskData data;
     data.id = id;
     data.title = TitleField->text();
-    data.description = DescField->toPlainText();   
-
+    data.description = DescField->toPlainText();
     return data;
 }
